@@ -1,0 +1,20 @@
+# Merge into:
+# /boot/config/plugins/compose.manager/projects/mediaStack/docker-compose.yml
+#
+# Put this under services, near the existing subwave service.
+
+services:
+  subwave-prism-player:
+    image: ghcr.io/kylejschultz/subwave-prism-player:latest
+    container_name: subwave-prism-player
+    networks: [docker-network]
+    environment:
+      - NODE_ENV=production
+      - PORT=7700
+      - HOSTNAME=0.0.0.0
+      - SUBWAVE_HOMEPAGE=player
+      - SITE_URL=https://player.kjho.me
+      - CONTROLLER_INTERNAL_URL=http://subwave/api
+    ports:
+      - "7703:7700"
+    restart: unless-stopped

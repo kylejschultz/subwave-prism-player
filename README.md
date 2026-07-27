@@ -52,6 +52,17 @@ Suggested public hostname:
 https://player.kjho.me
 ```
 
+The live Unraid media stack is compose-managed at:
+
+```text
+/boot/config/plugins/compose.manager/projects/mediaStack/
+```
+
+Ready-to-merge snippets live in:
+
+- `unraid/mediaStack.service.yml`
+- `unraid/mediaStack.override.yml`
+
 ## Container Publishing
 
 The GitHub Actions workflow publishes:
