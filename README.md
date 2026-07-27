@@ -2,7 +2,7 @@
 
 Small deployment wrapper for Kyle's Prism-flavored SUB/WAVE player.
 
-This repo does not own the player implementation. It builds the SUB/WAVE web frontend from a pinned git ref, applies a tiny Prism-default patch, points the client at the live station, and packages the result as a standalone container.
+This repo does not own the player implementation. It builds the SUB/WAVE web frontend from a pinned git ref, applies Kyle's Prism skin patches from `subwave-skins`, applies a tiny Prism-default patch, points the client at the live station, and packages the result as a standalone container.
 
 ## Shape
 
@@ -10,19 +10,24 @@ This repo does not own the player implementation. It builds the SUB/WAVE web fro
 - This container runs the full SUB/WAVE web frontend as a player-first surface.
 - The browser client is built with `NEXT_PUBLIC_API_URL=https://radio.kjho.me/api`.
 - The browser stream URL is built with `NEXT_PUBLIC_STREAM_URL=https://radio.kjho.me/stream.mp3`.
+- `https://github.com/kylejschultz/subwave-skins` supplies the Prism patch series and skin files.
 - `patches/prism-default.patch` changes the fallback player skin from `classic` to `prism`.
 
 ## Required Source Ref
 
-`SUBWAVE_REF` must point at a SUB/WAVE branch, tag, or commit that contains the Prism skin.
-
-Current local Prism work was observed at:
+The default `SUBWAVE_REF` is pinned to the upstream commit the `subwave-skins` patch series was created against:
 
 ```text
-dee6d4ae52ec4d0915f6670d935a71add8360e8a
+90db93086945eacd07d9a2b5fe607c41a5ec2fe6
 ```
 
-That commit needs to live in a GitHub-accessible SUB/WAVE source repo before GitHub Actions or an Unraid build can fetch it.
+The build then clones:
+
+```text
+https://github.com/kylejschultz/subwave-skins.git
+```
+
+and applies every patch in `patches/*.patch`, followed by the local Prism-default patch.
 
 ## Local Compose
 
@@ -76,6 +81,9 @@ Repository variables can override the defaults:
 
 - `SUBWAVE_REPO`
 - `SUBWAVE_REF`
+- `SUBWAVE_SKINS_REPO`
+- `SUBWAVE_SKINS_REF`
+- `APPLY_SUBWAVE_SKINS_PATCHES`
 - `APPLY_PRISM_DEFAULT_PATCH`
 - `PLAYER_SITE_URL`
 - `SUBWAVE_PUBLIC_API_URL`

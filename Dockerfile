@@ -12,7 +12,10 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 ARG SUBWAVE_REPO=https://github.com/perminder-klair/subwave.git
-ARG SUBWAVE_REF=develop
+ARG SUBWAVE_REF=90db93086945eacd07d9a2b5fe607c41a5ec2fe6
+ARG SUBWAVE_SKINS_REPO=https://github.com/kylejschultz/subwave-skins.git
+ARG SUBWAVE_SKINS_REF=main
+ARG APPLY_SUBWAVE_SKINS_PATCHES=1
 ARG APPLY_PRISM_DEFAULT_PATCH=1
 
 WORKDIR /src
@@ -20,6 +23,16 @@ COPY patches/ /patches/
 RUN git clone --filter=blob:none "${SUBWAVE_REPO}" subwave \
   && cd subwave \
   && git checkout "${SUBWAVE_REF}" \
+  && if [ "${APPLY_SUBWAVE_SKINS_PATCHES}" = "1" ]; then \
+       git clone --filter=blob:none "${SUBWAVE_SKINS_REPO}" /src/subwave-skins; \
+       cd /src/subwave-skins; \
+       git checkout "${SUBWAVE_SKINS_REF}"; \
+       cd /src/subwave; \
+       for patch in /src/subwave-skins/patches/*.patch; do git apply "${patch}"; done; \
+       rm -rf web/components/skins/prism; \
+       mkdir -p web/components/skins; \
+       cp -R /src/subwave-skins/skins/prism web/components/skins/prism; \
+     fi \
   && if [ "${APPLY_PRISM_DEFAULT_PATCH}" = "1" ]; then \
        git apply /patches/prism-default.patch; \
        test -d web/components/skins/prism; \

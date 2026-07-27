@@ -39,7 +39,10 @@ jobs:
             ghcr.io/${{ github.repository }}:${{ github.sha }}
           build-args: |
             SUBWAVE_REPO=${{ vars.SUBWAVE_REPO || 'https://github.com/perminder-klair/subwave.git' }}
-            SUBWAVE_REF=${{ inputs.subwave_ref || vars.SUBWAVE_REF || 'develop' }}
+            SUBWAVE_REF=${{ inputs.subwave_ref || vars.SUBWAVE_REF || '90db93086945eacd07d9a2b5fe607c41a5ec2fe6' }}
+            SUBWAVE_SKINS_REPO=${{ vars.SUBWAVE_SKINS_REPO || 'https://github.com/kylejschultz/subwave-skins.git' }}
+            SUBWAVE_SKINS_REF=${{ vars.SUBWAVE_SKINS_REF || 'main' }}
+            APPLY_SUBWAVE_SKINS_PATCHES=${{ vars.APPLY_SUBWAVE_SKINS_PATCHES || '1' }}
             APPLY_PRISM_DEFAULT_PATCH=${{ vars.APPLY_PRISM_DEFAULT_PATCH || '1' }}
             SITE_URL=${{ vars.PLAYER_SITE_URL || '' }}
             NEXT_PUBLIC_API_URL=${{ vars.SUBWAVE_PUBLIC_API_URL || 'https://radio.kjho.me/api' }}
