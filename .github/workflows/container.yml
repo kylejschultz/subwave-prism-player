@@ -1,0 +1,50 @@
+name: Publish container
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      subwave_ref:
+        description: SUB/WAVE git branch, tag, or commit to build
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+          build-args: |
+            SUBWAVE_REPO=${{ vars.SUBWAVE_REPO || 'https://github.com/perminder-klair/subwave.git' }}
+            SUBWAVE_REF=${{ inputs.subwave_ref || vars.SUBWAVE_REF || 'develop' }}
+            APPLY_PRISM_DEFAULT_PATCH=${{ vars.APPLY_PRISM_DEFAULT_PATCH || '1' }}
+            SITE_URL=${{ vars.PLAYER_SITE_URL || '' }}
+            NEXT_PUBLIC_API_URL=${{ vars.SUBWAVE_PUBLIC_API_URL || 'https://radio.kjho.me/api' }}
+            NEXT_PUBLIC_STREAM_URL=${{ vars.SUBWAVE_PUBLIC_STREAM_URL || 'https://radio.kjho.me/stream.mp3' }}
+            NEXT_PUBLIC_GA_ID=${{ vars.NEXT_PUBLIC_GA_ID || '' }}
+            SUBWAVE_BUILD_VERSION=${{ vars.SUBWAVE_BUILD_VERSION || 'prism-player' }}

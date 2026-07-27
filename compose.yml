@@ -1,0 +1,32 @@
+services:
+  subwave-prism-player:
+    image: ghcr.io/kylejschultz/subwave-prism-player:${SUBWAVE_PRISM_PLAYER_VERSION:-latest}
+    build:
+      context: .
+      args:
+        SUBWAVE_REPO: ${SUBWAVE_REPO:-https://github.com/perminder-klair/subwave.git}
+        SUBWAVE_REF: ${SUBWAVE_REF:-develop}
+        APPLY_PRISM_DEFAULT_PATCH: ${APPLY_PRISM_DEFAULT_PATCH:-1}
+        SITE_URL: ${PLAYER_SITE_URL:-}
+        NEXT_PUBLIC_API_URL: ${SUBWAVE_PUBLIC_API_URL:-https://radio.kjho.me/api}
+        NEXT_PUBLIC_STREAM_URL: ${SUBWAVE_PUBLIC_STREAM_URL:-https://radio.kjho.me/stream.mp3}
+        NEXT_PUBLIC_GA_ID: ${NEXT_PUBLIC_GA_ID:-}
+        SUBWAVE_BUILD_VERSION: ${SUBWAVE_BUILD_VERSION:-prism-player}
+    container_name: subwave-prism-player
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "7700"
+      HOSTNAME: 0.0.0.0
+      SUBWAVE_HOMEPAGE: player
+      SITE_URL: ${PLAYER_SITE_URL:-}
+      GA_ID: ${NEXT_PUBLIC_GA_ID:-}
+      CONTROLLER_INTERNAL_URL: ${SUBWAVE_CONTROLLER_INTERNAL_URL:-https://radio.kjho.me/api}
+    ports:
+      - "${PLAYER_PORT:-7703}:7700"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:7700/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s

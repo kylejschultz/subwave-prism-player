@@ -1,0 +1,13 @@
+diff --git a/web/lib/skin.ts b/web/lib/skin.ts
+--- a/web/lib/skin.ts
++++ b/web/lib/skin.ts
+@@ -11,7 +11,7 @@
+ // pre-paint script below. They live HERE — plain data, no React — because the
+ // server layout inlines SKIN_INIT_SCRIPT and must not drag the registry's
+ // next/dynamic wrappers into a server component. The registry re-exports
+ // DEFAULT_SKIN_ID for component-side consumers.
+-export const DEFAULT_SKIN_ID = 'classic';
++export const DEFAULT_SKIN_ID = 'prism';
+ 
+ /** Renamed/retired skin ids — resolved to their successor so an operator's
+  *  saved setting keeps working across upgrades. */
