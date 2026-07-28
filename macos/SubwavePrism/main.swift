@@ -1,33 +1,18 @@
 import Cocoa
 import AVFoundation
-import MediaToolbox
 import WebKit
-
-private struct NativeStation: Codable {
-    let slug: String
-    let name: String
-    let url: String
-    let location: String?
-    let genre: String?
-}
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigationDelegate, WKScriptMessageHandler {
     private let startURL = URL(string: "https://player.kjho.me/?skin=prism")!
-    private let stationDirectoryURL = URL(string: "https://player.kjho.me/stations.json")!
     private let appUserAgentToken = "SubwavePrism/1.0"
     private let stationDefaultsKey = "stationURL"
-    private let stationSlugDefaultsKey = "stationSlug"
-    private let stationNameDefaultsKey = "stationName"
-    private let stationLocationDefaultsKey = "stationLocation"
     private let defaultStationURL = "https://radio.gurthyy.xyz"
-    private let nativeSpectrumBands = 64
     private var window: NSWindow!
     private var webView: WKWebView!
     private var player: AVPlayer?
     private var playerAsset: AVURLAsset?
     private var currentNativeStreamURL: URL?
     private var terminationSignalSources: [DispatchSourceSignal] = []
-    private var lastSpectrumPush = Date.distantPast
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         setupMenu()
@@ -167,96 +152,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
     }
 
     @objc private func showStationSettings() {
-        fetchStationDirectory { [weak self] stations in
-            self?.presentStationSettings(stations: stations)
-        }
-    }
-
-    private func presentStationSettings(stations: [NativeStation]) {
         let alert = NSAlert()
-        alert.messageText = "Station"
-        alert.informativeText = "Choose a SUB/WAVE station or enter a custom base URL."
+        alert.messageText = "Station URL"
+        alert.informativeText = "Enter the base URL for a SUB/WAVE station."
         alert.addButton(withTitle: "Save")
         alert.addButton(withTitle: "Cancel")
 
-        let popup = NSPopUpButton(frame: NSRect(x: 0, y: 0, width: 420, height: 26), pullsDown: false)
-        let saved = stationMetadata()
-        let allStations = stationOptions(directory: stations)
-        var selectedIndex = 0
-        for (index, station) in allStations.enumerated() {
-            popup.addItem(withTitle: station.location.map { "\(station.name) - \($0)" } ?? station.name)
-            popup.item(at: index)?.representedObject = station.url
-            if normalizeStationURL(station.url)?.absoluteString == normalizeStationURL(saved.url)?.absoluteString {
-                selectedIndex = index
-            }
-        }
-        popup.addItem(withTitle: "Custom URL...")
-        popup.selectItem(at: selectedIndex)
-
         let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 420, height: 24))
-        field.stringValue = saved.url
-
-        let stack = NSStackView(views: [popup, field])
-        stack.orientation = .vertical
-        stack.spacing = 8
-        stack.frame = NSRect(x: 0, y: 0, width: 420, height: 58)
-        alert.accessoryView = stack
+        field.stringValue = stationURL().absoluteString
+        alert.accessoryView = field
 
         if alert.runModal() == .alertFirstButtonReturn {
-            let selectedURL = popup.selectedItem?.representedObject as? String
-            let rawURL = selectedURL ?? field.stringValue
-            guard let normalized = normalizeStationURL(rawURL) else {
+            guard let normalized = normalizeStationURL(field.stringValue) else {
                 showStationURLError()
                 return
             }
-            let selectedStation = allStations.first { normalizeStationURL($0.url)?.absoluteString == normalized.absoluteString }
-            saveStation(url: normalized, station: selectedStation)
+            UserDefaults.standard.set(normalized.absoluteString, forKey: stationDefaultsKey)
             stopNativePlayback()
             loadStartURL()
-        }
-    }
-
-    private func fetchStationDirectory(completion: @escaping ([NativeStation]) -> Void) {
-        let task = URLSession.shared.dataTask(with: stationDirectoryURL) { data, _, _ in
-            let stations: [NativeStation]
-            if let data,
-               let decoded = try? JSONDecoder().decode([NativeStation].self, from: data) {
-                stations = decoded
-            } else {
-                stations = []
-            }
-            DispatchQueue.main.async {
-                completion(stations)
-            }
-        }
-        task.resume()
-    }
-
-    private func stationOptions(directory: [NativeStation]) -> [NativeStation] {
-        var seen = Set<String>()
-        let saved = stationMetadata()
-        let savedStation = NativeStation(
-            slug: saved.slug,
-            name: saved.name,
-            url: saved.url,
-            location: saved.location,
-            genre: nil
-        )
-        return ([savedStation] + directory).filter { station in
-            guard let normalized = normalizeStationURL(station.url)?.absoluteString else { return false }
-            return seen.insert(normalized).inserted
-        }
-    }
-
-    private func saveStation(url: URL, station: NativeStation?) {
-        let defaults = UserDefaults.standard
-        defaults.set(url.absoluteString, forKey: stationDefaultsKey)
-        defaults.set(station?.slug ?? stationSlug(for: url), forKey: stationSlugDefaultsKey)
-        defaults.set(station?.name ?? url.host ?? "Saved station", forKey: stationNameDefaultsKey)
-        if let location = station?.location {
-            defaults.set(location, forKey: stationLocationDefaultsKey)
-        } else {
-            defaults.removeObject(forKey: stationLocationDefaultsKey)
         }
     }
 
@@ -269,35 +182,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
     }
 
     private func stationURL() -> URL {
-        return normalizeStationURL(stationMetadata().url) ?? URL(string: defaultStationURL)!
-    }
-
-    private func stationMetadata() -> NativeStation {
-        let defaults = UserDefaults.standard
-        let url: URL
-        if let stored = defaults.string(forKey: stationDefaultsKey),
+        if let stored = UserDefaults.standard.string(forKey: stationDefaultsKey),
            let url = normalizeStationURL(stored) {
-            return NativeStation(
-                slug: defaults.string(forKey: stationSlugDefaultsKey) ?? stationSlug(for: url),
-                name: defaults.string(forKey: stationNameDefaultsKey) ?? url.host ?? "Saved station",
-                url: url.absoluteString,
-                location: defaults.string(forKey: stationLocationDefaultsKey),
-                genre: nil
-            )
+            return url
         }
-        url = URL(string: defaultStationURL)!
-        return NativeStation(
-            slug: stationSlug(for: url),
-            name: url.host ?? "Saved station",
-            url: url.absoluteString,
-            location: "Native app",
-            genre: nil
-        )
-    }
-
-    private func stationSlug(for url: URL) -> String {
-        let host = url.host ?? "station"
-        return "native-\(host.lowercased().replacingOccurrences(of: "[^a-z0-9]+", with: "-", options: .regularExpression))"
+        return URL(string: defaultStationURL)!
     }
 
     private func normalizeStationURL(_ input: String) -> URL? {
@@ -336,38 +225,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
                 ]
             )
             playerAsset = asset
-            let item = AVPlayerItem(asset: asset)
-            installAudioTap(on: item)
-            player = AVPlayer(playerItem: item)
+            player = AVPlayer(playerItem: AVPlayerItem(asset: asset))
         }
         player?.volume = muted ? 0 : Float(max(0, min(1, volume)))
         player?.play()
-    }
-
-    private func installAudioTap(on item: AVPlayerItem) {
-        var callbacks = MTAudioProcessingTapCallbacks(
-            version: kMTAudioProcessingTapCallbacksVersion_0,
-            clientInfo: UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()),
-            init: nativeAudioTapInit,
-            finalize: nativeAudioTapFinalize,
-            prepare: nativeAudioTapPrepare,
-            unprepare: nativeAudioTapUnprepare,
-            process: nativeAudioTapProcess
-        )
-        var tapRef: Unmanaged<MTAudioProcessingTap>?
-        let status = MTAudioProcessingTapCreate(
-            kCFAllocatorDefault,
-            &callbacks,
-            kMTAudioProcessingTapCreationFlag_PostEffects,
-            &tapRef
-        )
-        guard status == noErr, let tap = tapRef?.takeRetainedValue() else { return }
-
-        let parameters = AVMutableAudioMixInputParameters()
-        parameters.audioTapProcessor = tap
-        let mix = AVMutableAudioMix()
-        mix.inputParameters = [parameters]
-        item.audioMix = mix
     }
 
     private func stopNativePlayback() {
@@ -380,48 +241,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
         player = nil
         playerAsset = nil
         currentNativeStreamURL = nil
-        publishNativeSpectrum(Array(repeating: 0, count: nativeSpectrumBands))
-    }
-
-    fileprivate func handleNativeAudio(bufferList: UnsafeMutablePointer<AudioBufferList>, frameCount: CMItemCount) {
-        let frames = max(1, Int(frameCount))
-        let buffers = UnsafeMutableAudioBufferListPointer(bufferList)
-        var bands = Array(repeating: Float(0), count: nativeSpectrumBands)
-        var counts = Array(repeating: 0, count: nativeSpectrumBands)
-
-        for buffer in buffers {
-            guard let data = buffer.mData else { continue }
-            let sampleCount = Int(buffer.mDataByteSize) / MemoryLayout<Float>.size
-            guard sampleCount > 0 else { continue }
-            let samples = data.assumingMemoryBound(to: Float.self)
-            let channelFrames = min(frames, sampleCount)
-            let stride = max(1, channelFrames / 512)
-            var index = 0
-            while index < channelFrames {
-                let band = min(nativeSpectrumBands - 1, index * nativeSpectrumBands / channelFrames)
-                bands[band] += abs(samples[index])
-                counts[band] += 1
-                index += stride
-            }
-        }
-
-        let levels = bands.enumerated().map { index, sum -> Int in
-            guard counts[index] > 0 else { return 0 }
-            let avg = sum / Float(counts[index])
-            return min(255, max(0, Int(pow(avg, 0.55) * 280)))
-        }
-        publishNativeSpectrum(levels)
-    }
-
-    private func publishNativeSpectrum(_ levels: [Int]) {
-        let now = Date()
-        guard now.timeIntervalSince(lastSpectrumPush) >= 1.0 / 30.0 || levels.allSatisfy({ $0 == 0 }) else { return }
-        lastSpectrumPush = now
-        guard let data = try? JSONSerialization.data(withJSONObject: levels),
-              let json = String(data: data, encoding: .utf8) else { return }
-        DispatchQueue.main.async { [weak self] in
-            self?.webView?.evaluateJavaScript("window.__subwaveNativeAudioFrame && window.__subwaveNativeAudioFrame(\(json));", completionHandler: nil)
-        }
     }
 
     private func nativeAudioBridgeScript() -> WKUserScript {
@@ -452,17 +271,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
           const handler = () => window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.subwaveNative;
           const streamLike = (value) => typeof value === 'string' && /\\/stream\\.(mp3|opus|flac|aac)(\\?|$)/.test(value);
           const isAudio = (el) => el && String(el.tagName).toUpperCase() === 'AUDIO';
-          const NativeAudioContext = window.AudioContext || window.webkitAudioContext;
           const srcDescriptor = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'src');
           const volumeDescriptor = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'volume');
           const mutedDescriptor = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'muted');
-          window.__subwaveNativeSpectrum = [];
-          window.__subwaveNativeSpectrumActive = false;
-          window.__subwaveNativeAudioFrame = (levels) => {
-            if (!Array.isArray(levels)) return;
-            window.__subwaveNativeSpectrum = levels.map((value) => Math.max(0, Math.min(255, Number(value) || 0)));
-            window.__subwaveNativeSpectrumActive = window.__subwaveNativeSpectrum.some((value) => value > 0);
-          };
           const post = (payload) => {
             try {
               const h = handler();
@@ -545,74 +356,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
               }
             });
           }
-
-          if (NativeAudioContext && NativeAudioContext.prototype && !NativeAudioContext.prototype.__subwaveNativeAnalyserPatched) {
-            const originalCreateAnalyser = NativeAudioContext.prototype.createAnalyser;
-            Object.defineProperty(NativeAudioContext.prototype, '__subwaveNativeAnalyserPatched', { value: true });
-            NativeAudioContext.prototype.createAnalyser = function() {
-              const analyser = originalCreateAnalyser.call(this);
-              const originalGetByteFrequencyData = analyser.getByteFrequencyData.bind(analyser);
-              analyser.getByteFrequencyData = (target) => {
-                const source = window.__subwaveNativeSpectrum || [];
-                if (!window.__subwaveNativeSpectrumActive || source.length === 0) {
-                  originalGetByteFrequencyData(target);
-                  return;
-                }
-                for (let i = 0; i < target.length; i += 1) {
-                  const position = target.length <= 1 ? 0 : (i / (target.length - 1)) * (source.length - 1);
-                  const left = Math.floor(position);
-                  const right = Math.min(source.length - 1, left + 1);
-                  const mix = position - left;
-                  target[i] = Math.round((source[left] || 0) * (1 - mix) + (source[right] || 0) * mix);
-                }
-              };
-              return analyser;
-            };
-          }
         })();
         """
 
         return WKUserScript(source: source, injectionTime: .atDocumentStart, forMainFrameOnly: true)
     }
-}
-
-private func nativeAudioTapInit(
-    tap: MTAudioProcessingTap,
-    clientInfo: UnsafeMutableRawPointer?,
-    tapStorageOut: UnsafeMutablePointer<UnsafeMutableRawPointer?>
-) {
-    tapStorageOut.pointee = clientInfo
-}
-
-private func nativeAudioTapFinalize(tap: MTAudioProcessingTap) {}
-
-private func nativeAudioTapPrepare(
-    tap: MTAudioProcessingTap,
-    maxFrames: CMItemCount,
-    processingFormat: UnsafePointer<AudioStreamBasicDescription>
-) {}
-
-private func nativeAudioTapUnprepare(tap: MTAudioProcessingTap) {}
-
-private func nativeAudioTapProcess(
-    tap: MTAudioProcessingTap,
-    numberFrames: CMItemCount,
-    flags: MTAudioProcessingTapFlags,
-    bufferListInOut: UnsafeMutablePointer<AudioBufferList>,
-    numberFramesOut: UnsafeMutablePointer<CMItemCount>,
-    flagsOut: UnsafeMutablePointer<MTAudioProcessingTapFlags>
-) {
-    MTAudioProcessingTapGetSourceAudio(
-        tap,
-        numberFrames,
-        bufferListInOut,
-        flagsOut,
-        nil,
-        numberFramesOut
-    )
-    let storage = MTAudioProcessingTapGetStorage(tap)
-    let app = Unmanaged<AppDelegate>.fromOpaque(storage).takeUnretainedValue()
-    app.handleNativeAudio(bufferList: bufferListInOut, frameCount: numberFramesOut.pointee)
 }
 
 let app = NSApplication.shared

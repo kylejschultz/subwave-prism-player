@@ -31,7 +31,6 @@ swiftc \
   -O \
   -framework Cocoa \
   -framework AVFoundation \
-  -framework MediaToolbox \
   -framework WebKit \
   "$repo_dir/macos/SubwavePrism/main.swift" \
   -o "$macos_dir/Subwave Prism"
