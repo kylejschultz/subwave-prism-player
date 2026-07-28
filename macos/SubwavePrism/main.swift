@@ -2,10 +2,18 @@ import Cocoa
 import AVFoundation
 import WebKit
 
+private struct NativeStation: Codable {
+    let slug: String
+    let name: String
+    let url: String
+    let location: String?
+}
+
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigationDelegate, WKScriptMessageHandler {
     private let startURL = URL(string: "https://player.kjho.me/?skin=prism")!
     private let appUserAgentToken = "SubwavePrism/1.0"
     private let stationDefaultsKey = "stationURL"
+    private let stationListDefaultsKey = "stations"
     private let defaultStationURL = "https://radio.gurthyy.xyz"
     private var window: NSWindow!
     private var webView: WKWebView!
@@ -153,24 +161,75 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
 
     @objc private func showStationSettings() {
         let alert = NSAlert()
-        alert.messageText = "Station URL"
-        alert.informativeText = "Enter the base URL for a SUB/WAVE station."
+        alert.messageText = "Station"
+        alert.informativeText = "Choose a saved station or enter a custom SUB/WAVE station URL."
         alert.addButton(withTitle: "Save")
         alert.addButton(withTitle: "Cancel")
 
+        let stations = savedStations()
+        let activeURL = stationURL().absoluteString
+        let popup = NSPopUpButton(frame: NSRect(x: 0, y: 0, width: 420, height: 26), pullsDown: false)
+        var selectedIndex = 0
+        for (index, station) in stations.enumerated() {
+            popup.addItem(withTitle: station.location.map { "\(station.name) - \($0)" } ?? station.name)
+            popup.item(at: index)?.representedObject = station.url
+            if normalizeStationURL(station.url)?.absoluteString == activeURL {
+                selectedIndex = index
+            }
+        }
+        popup.addItem(withTitle: "Custom URL...")
+        popup.selectItem(at: selectedIndex)
+
         let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 420, height: 24))
-        field.stringValue = stationURL().absoluteString
-        alert.accessoryView = field
+        field.stringValue = activeURL
+
+        let stack = NSStackView(views: [popup, field])
+        stack.orientation = .vertical
+        stack.spacing = 8
+        stack.frame = NSRect(x: 0, y: 0, width: 420, height: 58)
+        alert.accessoryView = stack
 
         if alert.runModal() == .alertFirstButtonReturn {
-            guard let normalized = normalizeStationURL(field.stringValue) else {
+            let selectedURL = popup.selectedItem?.representedObject as? String
+            guard let normalized = normalizeStationURL(selectedURL ?? field.stringValue) else {
                 showStationURLError()
                 return
             }
-            UserDefaults.standard.set(normalized.absoluteString, forKey: stationDefaultsKey)
+            saveStation(normalized)
             stopNativePlayback()
             loadStartURL()
         }
+    }
+
+    private func savedStations() -> [NativeStation] {
+        let defaults = UserDefaults.standard
+        var stations: [NativeStation] = []
+        if let data = defaults.data(forKey: stationListDefaultsKey),
+           let decoded = try? JSONDecoder().decode([NativeStation].self, from: data) {
+            stations = decoded
+        }
+        let active = stationFromURL(stationURL())
+        if !stations.contains(where: { normalizeStationURL($0.url)?.absoluteString == active.url }) {
+            stations.insert(active, at: 0)
+        }
+        return stations
+    }
+
+    private func saveStation(_ url: URL) {
+        let defaults = UserDefaults.standard
+        let station = stationFromURL(url)
+        let rest = savedStations().filter { normalizeStationURL($0.url)?.absoluteString != station.url }
+        let next = [station] + rest
+        if let data = try? JSONEncoder().encode(next) {
+            defaults.set(data, forKey: stationListDefaultsKey)
+        }
+        defaults.set(station.url, forKey: stationDefaultsKey)
+    }
+
+    private func stationFromURL(_ url: URL) -> NativeStation {
+        let host = url.host ?? "Saved station"
+        let slug = "native-\(host.lowercased().replacingOccurrences(of: "[^a-z0-9]+", with: "-", options: .regularExpression))"
+        return NativeStation(slug: slug, name: host, url: url.absoluteString, location: "Local")
     }
 
     private func showStationURLError() {
@@ -255,17 +314,48 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
         ]
         let stationData = try! JSONSerialization.data(withJSONObject: stationJSON)
         let stationJSONString = String(data: stationData, encoding: .utf8)!
+        let localStations = savedStations().map { station -> [String: String] in
+            var item = [
+                "slug": station.slug,
+                "name": station.name,
+                "url": station.url,
+            ]
+            if let location = station.location {
+                item["location"] = location
+            }
+            return item
+        }
+        let localStationsData = try! JSONSerialization.data(withJSONObject: localStations)
+        let localStationsJSONString = String(data: localStationsData, encoding: .utf8)!
 
         let source = """
         (() => {
           const station = \(stationJSONString);
+          const nativeStations = \(localStationsJSONString);
           const stationKey = 'subwave.stationOverride.v1';
           const customKey = 'subwave.customStations.v1';
           try {
-            const existing = JSON.parse(localStorage.getItem(customKey) || '[]')
-              .filter((item) => item && item.url !== station.url && item.slug !== station.slug);
-            localStorage.setItem(customKey, JSON.stringify([station, ...existing]));
+            localStorage.setItem(customKey, JSON.stringify(nativeStations));
             localStorage.setItem(stationKey, station.slug);
+          } catch (_) {}
+          try {
+            const originalFetch = window.fetch ? window.fetch.bind(window) : null;
+            if (originalFetch && !window.__subwaveNativeFetchPatched) {
+              window.__subwaveNativeFetchPatched = true;
+              window.fetch = (input, init) => {
+                try {
+                  const raw = typeof input === 'string' ? input : input && input.url;
+                  const url = new URL(raw || '', window.location.href);
+                  if (url.pathname === '/stations.json') {
+                    return Promise.resolve(new Response(JSON.stringify(nativeStations), {
+                      status: 200,
+                      headers: { 'Content-Type': 'application/json' }
+                    }));
+                  }
+                } catch (_) {}
+                return originalFetch(input, init);
+              };
+            }
           } catch (_) {}
 
           const handler = () => window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.subwaveNative;
