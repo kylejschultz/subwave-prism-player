@@ -2,7 +2,7 @@ diff --git a/web/middleware.ts b/web/middleware.ts
 new file mode 100644
 --- /dev/null
 +++ b/web/middleware.ts
-@@ -0,0 +1,29 @@
+@@ -0,0 +1,30 @@
 +import { NextResponse, type NextRequest } from 'next/server';
 +
 +const blockedPrefixes = ['/admin', '/setup'];
