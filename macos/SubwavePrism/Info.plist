@@ -8,6 +8,8 @@
   <string>Subwave Prism</string>
   <key>CFBundleIdentifier</key>
   <string>com.kjho.subwave-prism</string>
+  <key>CFBundleIconFile</key>
+  <string>SubwavePrism</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>

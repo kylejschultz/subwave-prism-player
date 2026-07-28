@@ -95,4 +95,10 @@ Repository variables can override the defaults:
 
 ## macOS Wrapper
 
-The planned macOS wrapper should remain a thin shell that opens the deployed player URL. That lets the web deploy carry Prism changes without rebuilding the app bundle.
+The macOS wrapper is a thin shell that opens the deployed player URL:
+
+```text
+https://player.kjho.me/?skin=prism
+```
+
+That lets the web deploy carry Prism changes without rebuilding the app bundle.
