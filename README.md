@@ -13,6 +13,7 @@ This repo does not own the player implementation. It builds the SUB/WAVE web fro
 - `https://github.com/kylejschultz/subwave-skins` supplies the Prism patch series and skin files.
 - `patches/prism-default.patch` changes the fallback player skin from `classic` to `prism`.
 - `patches/player-only.patch` redirects `/` to Prism and sends `/admin` and `/setup` back to the player.
+- `patches/prism-only.patch` hides upstream skins and filters the theme picker to Kyle's Prism theme allowlist.
 
 ## Required Source Ref
 
@@ -71,7 +72,7 @@ Ready-to-merge snippets live in:
 
 ## Container Publishing
 
-The GitHub Actions workflow publishes:
+The GitHub Actions workflow publishes on every push to `main` and can also be run manually:
 
 ```text
 ghcr.io/kylejschultz/subwave-prism-player:latest
@@ -87,9 +88,11 @@ Repository variables can override the defaults:
 - `APPLY_SUBWAVE_SKINS_PATCHES`
 - `APPLY_PRISM_DEFAULT_PATCH`
 - `APPLY_PLAYER_ONLY_PATCH`
+- `APPLY_PRISM_ONLY_PATCH`
 - `PLAYER_SITE_URL`
 - `SUBWAVE_PUBLIC_API_URL`
 - `SUBWAVE_PUBLIC_STREAM_URL`
+- `PRISM_THEME_IDS` — comma-separated theme IDs visible in the Prism player; defaults to `cyan-gloom`
 - `NEXT_PUBLIC_GA_ID`
 - `SUBWAVE_BUILD_VERSION`
 

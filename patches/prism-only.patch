@@ -1,0 +1,106 @@
+diff --git a/web/components/ThemeBootstrap.tsx b/web/components/ThemeBootstrap.tsx
+index 7beed33..a5c9d6c 100644
+--- a/web/components/ThemeBootstrap.tsx
++++ b/web/components/ThemeBootstrap.tsx
+@@ -35,6 +35,21 @@ interface ThemeContextValue {
+ }
+ 
+ const ThemeContext = createContext<ThemeContextValue | null>(null);
++const PRISM_THEME_IDS = (process.env.NEXT_PUBLIC_PRISM_THEME_IDS || 'cyan-gloom')
++  .split(',')
++  .map(id => id.trim())
++  .filter(Boolean);
++
++function prismThemes(registry: Theme[], stationId: string | null): { themes: Theme[]; active: string | null } {
++  if (PRISM_THEME_IDS.length === 0) return { themes: registry, active: stationId };
++  const allowed = new Set(PRISM_THEME_IDS);
++  const themes = registry.filter(theme => allowed.has(theme.id));
++  const fallback = themes[0]?.id ?? stationId;
++  return {
++    themes: themes.length > 0 ? themes : registry.filter(theme => theme.id === stationId),
++    active: themes.some(theme => theme.id === stationId) ? stationId : fallback,
++  };
++}
+ 
+ /** Read theme state from any client component. Returns null on the server
+  *  and before the provider is mounted. */
+@@ -101,9 +116,10 @@ export default function ThemeBootstrap({ children }: { children?: ReactNode }) {
+       try {
+         const j = await defaultStationClient.themes();
+         if (cancelled) return;
+-        setThemes(j.themes);
+-        setStationActiveId(j.active);
+-        applyEffective(j.themes, j.active, overrideRef.current);
++        const visible = prismThemes(j.themes, j.active);
++        setThemes(visible.themes);
++        setStationActiveId(visible.active);
++        applyEffective(visible.themes, visible.active, overrideRef.current);
+       } catch {
+         // Network blip — keep the existing CSS variables. The next poll will
+         // sort it out, and the pre-paint cache covers the meantime.
+diff --git a/web/components/skins/index.ts b/web/components/skins/index.ts
+index 2613859..0b92a5b 100644
+--- a/web/components/skins/index.ts
++++ b/web/components/skins/index.ts
+@@ -13,54 +13,6 @@ import { DEFAULT_SKIN_ID, canonicalSkinId } from '@/lib/skin';
+ import { SKIN_API_VERSION, type SkinComponent, type SkinManifest } from './types';
+ 
+ export const SKINS: SkinManifest[] = [
+-  {
+-    id: 'classic',
+-    name: 'Classic',
+-    description:
+-      'The original SUB/WAVE face — masthead, centre stage, waveform, transport deck.',
+-    skinApiVersion: SKIN_API_VERSION,
+-    load: () => import('./classic/ClassicSkin'),
+-  },
+-  {
+-    id: 'spool',
+-    name: 'Spool',
+-    description:
+-      'A walkman deck — the whole station fits on one cassette.',
+-    skinApiVersion: SKIN_API_VERSION,
+-    load: () => import('./spool/SpoolSkin'),
+-  },
+-  {
+-    id: 'drift',
+-    name: 'Drift',
+-    description:
+-      'Ninety percent weather, ten percent type — the cover art becomes the room.',
+-    skinApiVersion: SKIN_API_VERSION,
+-    load: () => import('./drift/DriftSkin'),
+-  },
+-  {
+-    id: 'subamp',
+-    name: 'Subamp',
+-    description:
+-      "A compact modular player — deck, booth and log stacked like it's 1998.",
+-    skinApiVersion: SKIN_API_VERSION,
+-    load: () => import('./subamp/SubampSkin'),
+-  },
+-  {
+-    id: 'tty',
+-    name: 'TTY',
+-    description:
+-      'The station as a live process — panes and a status line, everything tails.',
+-    skinApiVersion: SKIN_API_VERSION,
+-    load: () => import('./tty/TtySkin'),
+-  },
+-  {
+-    id: 'platter',
+-    name: 'Platter',
+-    description:
+-      'The flagship vinyl face — a reference turntable is the interface, needle and all.',
+-    skinApiVersion: SKIN_API_VERSION,
+-    load: () => import('./platter/PlatterSkin'),
+-  },
+   {
+     id: 'prism',
+     name: 'Prism',
+@@ -106,5 +58,5 @@ export const SKIN_COMPONENTS: Record<string, SkinComponent> = Object.fromEntries
+  *  a string-keyed record, so TS can't prove a hit). Points at the same module
+  *  as the classic entry — the bundler dedupes the chunk. */
+ export const DEFAULT_SKIN_COMPONENT: SkinComponent = dynamic(
+-  () => import('./classic/ClassicSkin'),
++  () => import('./prism/PrismSkin'),
+ ) as SkinComponent;
