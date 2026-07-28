@@ -72,7 +72,7 @@ Ready-to-merge snippets live in:
 
 ## Container Publishing
 
-The GitHub Actions workflow publishes on every push to `main` and can also be run manually:
+The GitHub Actions workflow publishes on every push to `main`, can be run manually, and accepts a `subwave-skins-updated` repository dispatch event for cross-repo rebuilds from the skin source repo:
 
 ```text
 ghcr.io/kylejschultz/subwave-prism-player:latest
