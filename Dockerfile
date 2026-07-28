@@ -17,6 +17,7 @@ ARG SUBWAVE_SKINS_REPO=https://github.com/kylejschultz/subwave-skins.git
 ARG SUBWAVE_SKINS_REF=main
 ARG APPLY_SUBWAVE_SKINS_PATCHES=1
 ARG APPLY_PRISM_DEFAULT_PATCH=1
+ARG APPLY_PLAYER_ONLY_PATCH=1
 
 WORKDIR /src
 COPY patches/ /patches/
@@ -36,6 +37,9 @@ RUN git clone --filter=blob:none "${SUBWAVE_REPO}" subwave \
   && if [ "${APPLY_PRISM_DEFAULT_PATCH}" = "1" ]; then \
        git apply /patches/prism-default.patch; \
        test -d web/components/skins/prism; \
+     fi \
+  && if [ "${APPLY_PLAYER_ONLY_PATCH}" = "1" ]; then \
+       git apply /patches/player-only.patch; \
      fi
 
 FROM ${NODE_IMAGE} AS deps

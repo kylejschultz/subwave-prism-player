@@ -44,6 +44,7 @@ jobs:
             SUBWAVE_SKINS_REF=${{ vars.SUBWAVE_SKINS_REF || 'main' }}
             APPLY_SUBWAVE_SKINS_PATCHES=${{ vars.APPLY_SUBWAVE_SKINS_PATCHES || '1' }}
             APPLY_PRISM_DEFAULT_PATCH=${{ vars.APPLY_PRISM_DEFAULT_PATCH || '1' }}
+            APPLY_PLAYER_ONLY_PATCH=${{ vars.APPLY_PLAYER_ONLY_PATCH || '1' }}
             SITE_URL=${{ vars.PLAYER_SITE_URL || '' }}
             NEXT_PUBLIC_API_URL=${{ vars.SUBWAVE_PUBLIC_API_URL || 'https://radio.kjho.me/api' }}
             NEXT_PUBLIC_STREAM_URL=${{ vars.SUBWAVE_PUBLIC_STREAM_URL || 'https://radio.kjho.me/stream.mp3' }}

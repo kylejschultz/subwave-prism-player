@@ -12,6 +12,7 @@ This repo does not own the player implementation. It builds the SUB/WAVE web fro
 - The browser stream URL is built with `NEXT_PUBLIC_STREAM_URL=https://radio.kjho.me/stream.mp3`.
 - `https://github.com/kylejschultz/subwave-skins` supplies the Prism patch series and skin files.
 - `patches/prism-default.patch` changes the fallback player skin from `classic` to `prism`.
+- `patches/player-only.patch` redirects `/` to Prism and sends `/admin` and `/setup` back to the player.
 
 ## Required Source Ref
 
@@ -85,6 +86,7 @@ Repository variables can override the defaults:
 - `SUBWAVE_SKINS_REF`
 - `APPLY_SUBWAVE_SKINS_PATCHES`
 - `APPLY_PRISM_DEFAULT_PATCH`
+- `APPLY_PLAYER_ONLY_PATCH`
 - `PLAYER_SITE_URL`
 - `SUBWAVE_PUBLIC_API_URL`
 - `SUBWAVE_PUBLIC_STREAM_URL`
