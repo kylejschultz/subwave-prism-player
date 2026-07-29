@@ -6,7 +6,7 @@ index 7beed33..a5c9d6c 100644
  }
  
  const ThemeContext = createContext<ThemeContextValue | null>(null);
-+const PRISM_THEME_IDS = (process.env.NEXT_PUBLIC_PRISM_THEME_IDS || 'cyan-gloom')
++const PRISM_THEME_IDS = (process.env.NEXT_PUBLIC_PRISM_THEME_IDS || '')
 +  .split(',')
 +  .map(id => id.trim())
 +  .filter(Boolean);

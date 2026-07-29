@@ -10,7 +10,7 @@ private struct NativeStation: Codable {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigationDelegate, WKScriptMessageHandler {
-    private let startURL = URL(string: "https://player.kjho.me/?skin=prism")!
+    private let startURL = URL(string: "https://prism.gurthyy.xyz/?skin=prism")!
     private let appUserAgentToken = "SubwavePrism/1.0"
     private let stationDefaultsKey = "stationURL"
     private let stationListDefaultsKey = "stations"

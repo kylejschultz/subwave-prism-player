@@ -52,9 +52,9 @@ jobs:
             APPLY_PRISM_DEFAULT_PATCH=${{ vars.APPLY_PRISM_DEFAULT_PATCH || '1' }}
             APPLY_PLAYER_ONLY_PATCH=${{ vars.APPLY_PLAYER_ONLY_PATCH || '1' }}
             APPLY_PRISM_ONLY_PATCH=${{ vars.APPLY_PRISM_ONLY_PATCH || '1' }}
-            SITE_URL=${{ vars.PLAYER_SITE_URL || '' }}
-            NEXT_PUBLIC_API_URL=${{ vars.SUBWAVE_PUBLIC_API_URL || 'https://radio.kjho.me/api' }}
-            NEXT_PUBLIC_STREAM_URL=${{ vars.SUBWAVE_PUBLIC_STREAM_URL || 'https://radio.kjho.me/stream.mp3' }}
-            NEXT_PUBLIC_PRISM_THEME_IDS=${{ vars.PRISM_THEME_IDS || 'cyan-gloom' }}
+            SITE_URL=${{ vars.PLAYER_SITE_URL || 'https://prism.gurthyy.xyz' }}
+            NEXT_PUBLIC_API_URL=${{ vars.SUBWAVE_PUBLIC_API_URL || 'https://radio.gurthyy.xyz/api' }}
+            NEXT_PUBLIC_STREAM_URL=${{ vars.SUBWAVE_PUBLIC_STREAM_URL || 'https://radio.gurthyy.xyz/stream.mp3' }}
+            NEXT_PUBLIC_PRISM_THEME_IDS=${{ vars.PRISM_THEME_IDS || '' }}
             NEXT_PUBLIC_GA_ID=${{ vars.NEXT_PUBLIC_GA_ID || '' }}
             SUBWAVE_BUILD_VERSION=${{ vars.SUBWAVE_BUILD_VERSION || 'prism-player' }}

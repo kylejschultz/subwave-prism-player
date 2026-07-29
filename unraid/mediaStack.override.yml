@@ -8,5 +8,5 @@ services:
     labels:
       net.unraid.docker.managed: 'composeman'
       net.unraid.docker.icon: ''
-      net.unraid.docker.webui: 'player.kjho.me'
+      net.unraid.docker.webui: 'prism.gurthyy.xyz'
       net.unraid.docker.shell: ''

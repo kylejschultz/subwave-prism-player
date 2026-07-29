@@ -6,10 +6,10 @@ This repo does not own the player implementation. It builds the SUB/WAVE web fro
 
 ## Shape
 
-- `radio.kjho.me` remains the real SUB/WAVE station, API, admin, and stream.
+- `radio.gurthyy.xyz` is the public SUB/WAVE station, API, admin, and stream.
 - This container runs the full SUB/WAVE web frontend as a player-first surface.
-- The browser client is built with `NEXT_PUBLIC_API_URL=https://radio.kjho.me/api`.
-- The browser stream URL is built with `NEXT_PUBLIC_STREAM_URL=https://radio.kjho.me/stream.mp3`.
+- The browser client is built with `NEXT_PUBLIC_API_URL=https://radio.gurthyy.xyz/api`.
+- The browser stream URL is built with `NEXT_PUBLIC_STREAM_URL=https://radio.gurthyy.xyz/stream.mp3`.
 - `https://github.com/kylejschultz/subwave-skins` supplies the Prism patch series and skin files.
 - `patches/prism-default.patch` changes the fallback player skin from `classic` to `prism`.
 - `patches/player-only.patch` redirects `/` to Prism and sends `/admin` and `/setup` back to the player.
@@ -50,13 +50,13 @@ Add this as a separate service alongside the media/SUB/WAVE stack, or run this c
 
 The service only needs HTTP access to:
 
-- `https://radio.kjho.me/api`
-- `https://radio.kjho.me/stream.mp3`
+- `https://radio.gurthyy.xyz/api`
+- `https://radio.gurthyy.xyz/stream.mp3`
 
 Suggested public hostname:
 
 ```text
-https://player.kjho.me
+https://prism.gurthyy.xyz
 ```
 
 The live Unraid media stack is compose-managed at:
@@ -92,7 +92,7 @@ Repository variables can override the defaults:
 - `PLAYER_SITE_URL`
 - `SUBWAVE_PUBLIC_API_URL`
 - `SUBWAVE_PUBLIC_STREAM_URL`
-- `PRISM_THEME_IDS` — comma-separated theme IDs visible in the Prism player; defaults to `cyan-gloom`
+- `PRISM_THEME_IDS` — comma-separated theme IDs visible in the Prism player; empty by default, which shows every station theme
 - `NEXT_PUBLIC_GA_ID`
 - `SUBWAVE_BUILD_VERSION`
 
@@ -101,7 +101,7 @@ Repository variables can override the defaults:
 The macOS wrapper is a thin shell that opens the deployed player URL:
 
 ```text
-https://player.kjho.me/?skin=prism
+https://prism.gurthyy.xyz/?skin=prism
 ```
 
 That lets the web deploy carry Prism changes without rebuilding the app bundle.

@@ -13,7 +13,7 @@ services:
       - PORT=7700
       - HOSTNAME=0.0.0.0
       - SUBWAVE_HOMEPAGE=player
-      - SITE_URL=https://player.kjho.me
+      - SITE_URL=https://prism.gurthyy.xyz
       - CONTROLLER_INTERNAL_URL=http://subwave/api
     ports:
       - "7703:7700"
