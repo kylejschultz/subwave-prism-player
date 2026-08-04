@@ -14,6 +14,7 @@ This repo does not own the player implementation. It builds the SUB/WAVE web fro
 - `patches/player-only.patch` redirects `/` to Prism and sends `/admin` and `/setup` back to the player.
 - `patches/prism-only.patch` hides upstream skins and filters the theme picker to Kyle's Prism theme allowlist.
 - `patches/standalone-station-setup.patch` adds first-time station setup.
+- `patches/standalone-station-controls.patch` makes themes and station switching follow the saved station.
 - `patches/prism-app-branding.patch` gives the installable PWA a Prism identity.
 
 ## Required Source Ref
@@ -88,6 +89,7 @@ Repository variables can override the defaults:
 - `APPLY_PLAYER_ONLY_PATCH`
 - `APPLY_PRISM_ONLY_PATCH`
 - `APPLY_STANDALONE_STATION_SETUP_PATCH`
+- `APPLY_STANDALONE_STATION_CONTROLS_PATCH`
 - `APPLY_PRISM_APP_BRANDING_PATCH`
 - `PLAYER_SITE_URL`
 - `SUBWAVE_PUBLIC_API_URL`

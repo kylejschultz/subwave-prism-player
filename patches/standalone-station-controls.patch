@@ -1,0 +1,236 @@
+diff --git a/web/components/ThemeBootstrap.tsx b/web/components/ThemeBootstrap.tsx
+--- a/web/components/ThemeBootstrap.tsx
++++ b/web/components/ThemeBootstrap.tsx
+@@ -14,11 +14,14 @@ import {
+   saveThemeOverride,
+   type Theme,
+ } from '@/lib/theme';
+-// Install-level concern: the theme registry belongs to *this* deployment, so
+-// this always goes through the same-origin default client — never a showcase
+-// station's origin.
+-import { defaultStationClient } from '@/lib/stationClient';
++import { createStationClient, defaultStationClient, type StationClient } from '@/lib/stationClient';
++import { originForStation } from '@/lib/stationOrigin';
+ 
++const STANDALONE_SETUP =
++  process.env.NEXT_PUBLIC_SUBWAVE_STATION_SETUP === 'required' ||
++  process.env.NEXT_PUBLIC_PRISM_STANDALONE === 'true';
++const STATION_STORAGE_KEY = 'subwave.stationOverride.v1';
++const CUSTOM_STATIONS_KEY = 'subwave.customStations.v1';
+ interface ThemeContextValue {
+   /** Every theme the controller knows about (built-ins + state/themes/*.json). */
+   themes: Theme[];
+@@ -51,6 +54,24 @@ function prismThemes(registry: Theme[], stationId: string | null): { themes: The
+   };
+ }
+ 
++function stationThemeClient(): StationClient {
++  if (!STANDALONE_SETUP || typeof window === 'undefined') return defaultStationClient;
++  try {
++    const slug = window.localStorage.getItem(STATION_STORAGE_KEY);
++    const stations: unknown = JSON.parse(window.localStorage.getItem(CUSTOM_STATIONS_KEY) || '[]');
++    if (!slug || !Array.isArray(stations)) return defaultStationClient;
++    const station = stations.find(item => {
++      if (!item || typeof item !== 'object') return false;
++      return (item as { slug?: unknown }).slug === slug;
++    }) as { url?: unknown } | undefined;
++    if (typeof station?.url === 'string' && station.url) {
++      return createStationClient(originForStation(station.url));
++    }
++  } catch {}
++  return defaultStationClient;
++}
++
+ /** Read theme state from any client component. Returns null on the server
+  *  and before the provider is mounted. */
+ export function useThemeSwitcher(): ThemeContextValue | null {
+@@ -116,7 +137,7 @@ export default function ThemeBootstrap({ children }: { children?: ReactNode }) {
+ 
+     const refresh = async () => {
+       try {
+-        const j = await defaultStationClient.themes();
++        const j = await stationThemeClient().themes();
+         if (cancelled) return;
+         const visible = prismThemes(j.themes, j.active);
+         setThemes(visible.themes);
+@@ -129,10 +150,12 @@ export default function ThemeBootstrap({ children }: { children?: ReactNode }) {
+ 
+     refresh();
+     const id = setInterval(refresh, 30_000);
++    window.addEventListener('subwave:station-changed', refresh);
+     return () => {
+       cancelled = true;
+       clearInterval(id);
++      window.removeEventListener('subwave:station-changed', refresh);
+     };
+   }, [applyEffective]);
+ 
+diff --git a/web/components/player/StationSetup.tsx b/web/components/player/StationSetup.tsx
+--- a/web/components/player/StationSetup.tsx
++++ b/web/components/player/StationSetup.tsx
+@@ -42,7 +42,7 @@ export default function StationSetup() {
+   const [phase, setPhase] = useState<Phase>('idle');
+   const [message, setMessage] = useState('');
+   const savedStations = useMemo(
+-    () => tuner?.stations.filter(station => !station.isLocal) ?? [],
++    () => tuner?.stations.filter(station => !station.isLocal && station.slug.startsWith('custom-')) ?? [],
+     [tuner?.stations],
+   );
+ 
+diff --git a/web/components/player/StationTuner.tsx b/web/components/player/StationTuner.tsx
+--- a/web/components/player/StationTuner.tsx
++++ b/web/components/player/StationTuner.tsx
+@@ -18,6 +18,7 @@ import {
+ 
+ const STORAGE_KEY = 'subwave.stationOverride.v1';
+ const CUSTOM_STATIONS_KEY = 'subwave.customStations.v1';
++const SETUP_OPEN_KEY = 'subwave.stationSetupOpen.v1';
+ const STANDALONE_SETUP =
+   process.env.NEXT_PUBLIC_SUBWAVE_STATION_SETUP === 'required' ||
+   process.env.NEXT_PUBLIC_PRISM_STANDALONE === 'true';
+@@ -37,6 +38,7 @@ interface StationTunerContextValue {
+   needsSetup: boolean;
+   origin: StationOrigin;
+   addCustomStation: (input: string) => TunerStation | null;
++  openSetup: () => void;
+   setStation: (slug: string) => void;
+ }
+@@ -102,14 +104,21 @@ function loadSavedSlug(): string {
+   return window.localStorage.getItem(STORAGE_KEY) || LOCAL_STATION.slug;
+ }
+ 
++function notifyStationChanged() {
++  window.dispatchEvent(new Event('subwave:station-changed'));
++}
++
+ function stationUrlFromSearch(): string | null {
+   if (typeof window === 'undefined') return null;
+   const params = new URLSearchParams(window.location.search);
+   return params.get('station') || params.get('stationUrl') || params.get('url');
+ }
+ 
+ export function StationTunerProvider({ children }: { children: ReactNode }) {
+   const [stations, setStations] = useState<TunerStation[]>([LOCAL_STATION]);
+   const [activeSlug, setActiveSlug] = useState(LOCAL_STATION.slug);
+   const [loading, setLoading] = useState(true);
++  const [setupOpen, setSetupOpen] = useState(false);
+ 
+   useEffect(() => {
+     const custom = loadCustomStations();
++    setSetupOpen(window.localStorage.getItem(SETUP_OPEN_KEY) === '1');
+     const launchStation = stationUrlFromSearch();
+     if (launchStation) {
+       const station = stationFromUrl(launchStation);
+@@ -118,7 +127,10 @@ export function StationTunerProvider({ children }: { children: ReactNode }) {
+         saveCustomStations(merged);
+         setStations([LOCAL_STATION, ...merged]);
+         setActiveSlug(station.slug);
++        setSetupOpen(false);
+         window.localStorage.setItem(STORAGE_KEY, station.slug);
++        window.localStorage.removeItem(SETUP_OPEN_KEY);
++        notifyStationChanged();
+         const url = new URL(window.location.href);
+         url.searchParams.delete('station');
+         url.searchParams.delete('stationUrl');
+@@ -160,16 +172,30 @@ export function StationTunerProvider({ children }: { children: ReactNode }) {
+   const origin = active.isLocal ? DEFAULT_STATION_ORIGIN : originForStation(active.url);
+   const hasSavedRemoteStation = stations.some(station => !station.isLocal && station.slug.startsWith('custom-'));
+-  const needsSetup = !loading && STANDALONE_SETUP && active.isLocal === true && !hasSavedRemoteStation;
++  const needsSetup = !loading && STANDALONE_SETUP && (setupOpen || (active.isLocal === true && !hasSavedRemoteStation));
+   const setStation = useCallback((slug: string) => {
+     const next = slug || LOCAL_STATION.slug;
+     setActiveSlug(next);
+     window.localStorage.setItem(STORAGE_KEY, next);
++    if (next !== LOCAL_STATION.slug) {
++      setSetupOpen(false);
++      window.localStorage.removeItem(SETUP_OPEN_KEY);
++    }
++    notifyStationChanged();
+   }, []);
++  const openSetup = useCallback(() => {
++    setSetupOpen(true);
++    setActiveSlug(LOCAL_STATION.slug);
++    window.localStorage.setItem(STORAGE_KEY, LOCAL_STATION.slug);
++    window.localStorage.setItem(SETUP_OPEN_KEY, '1');
++    notifyStationChanged();
++  }, []);
+   const addCustomStation = useCallback((input: string) => {
+     const station = stationFromUrl(input);
+     if (!station) return null;
+     const existing = stations.find(s => s.url === station.url);
+     if (existing) {
+       setActiveSlug(existing.slug);
++      setSetupOpen(false);
+       window.localStorage.setItem(STORAGE_KEY, existing.slug);
++      window.localStorage.removeItem(SETUP_OPEN_KEY);
++      notifyStationChanged();
+       return existing;
+     }
+@@ -181,8 +207,11 @@ export function StationTunerProvider({ children }: { children: ReactNode }) {
+       return next;
+     });
+     setActiveSlug(station.slug);
++    setSetupOpen(false);
+     window.localStorage.setItem(STORAGE_KEY, station.slug);
++    window.localStorage.removeItem(SETUP_OPEN_KEY);
++    notifyStationChanged();
+     return station;
+   }, [stations]);
+@@ -198,10 +227,11 @@ export function StationTunerProvider({ children }: { children: ReactNode }) {
+       needsSetup,
+       origin,
+       addCustomStation,
++      openSetup,
+       setStation,
+     }),
+-    [active, stations, loading, needsSetup, origin, addCustomStation, setStation],
++    [active, stations, loading, needsSetup, origin, addCustomStation, openSetup, setStation],
+   );
+ 
+diff --git a/web/components/skins/prism/PrismSkin.tsx b/web/components/skins/prism/PrismSkin.tsx
+--- a/web/components/skins/prism/PrismSkin.tsx
++++ b/web/components/skins/prism/PrismSkin.tsx
+@@ -5,13 +5,14 @@
+ 
+ import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
+ import * as Dialog from '@radix-ui/react-dialog';
+-import { Heart, Info, LoaderCircle, Play, Send, Square, Volume2, VolumeX, X } from 'lucide-react';
++import { Heart, Info, LoaderCircle, Play, RadioTower, Send, Square, Volume2, VolumeX, X } from 'lucide-react';
+ import styles from './Prism.module.css';
+ import {
+   usePlayerActions,
+   usePlayerAudio,
+   usePlayerFeed,
+ } from '@/components/player/PlayerCore';
++import { useStationTuner } from '@/components/player/StationTuner';
+ import { useTuneInGate } from '@/components/player/useTuneInGate';
+ import ThemeSwitcher from '@/components/ThemeSwitcher';
+@@ -299,6 +300,7 @@ function PrismWaveform({
+ 
+ export default function PrismSkin(_props: SkinProps) {
+   const client = useStationClient();
++  const tuner = useStationTuner();
+   const {
+     nowPlaying, context, dj, activeShow, listeners, state, session,
+@@ -623,6 +625,23 @@ export default function PrismSkin(_props: SkinProps) {
+                             {signal.latencyMs != null && tunedIn && <><span>Latency</span><strong>{signal.latencyMs} ms</strong></>}
+                             {playerUrl && <><span>Player</span><strong className="truncate">{playerUrl}</strong></>}
+                           </div>
++                          {tuner?.setupRequired && (
++                            <div className="border-t border-[color-mix(in_oklab,var(--line)_58%,transparent)] p-3">
++                              <button
++                                type="button"
++                                onClick={() => {
++                                  setInfoOpen(false);
++                                  tuner.openSetup();
++                                }}
++                                className="v3-focus flex h-10 w-full items-center justify-center gap-2 border border-[var(--line)] bg-[color-mix(in_oklab,var(--surface)_42%,transparent)] px-3 font-mono text-[10px] font-extrabold tracking-[0.18em] text-[var(--accent)] uppercase hover:border-[var(--accent)]"
++                              >
++                                <RadioTower aria-hidden className="size-4" />
++                                Change station
++                              </button>
++                            </div>
++                          )}
+                         </Dialog.Content>
+                       </Dialog.Portal>
+                     </Dialog.Root>

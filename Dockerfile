@@ -21,6 +21,7 @@ ARG APPLY_PLAYER_ONLY_PATCH=1
 ARG APPLY_PRISM_ONLY_PATCH=1
 ARG APPLY_STANDALONE_STATION_SETUP_PATCH=1
 ARG APPLY_PRISM_APP_BRANDING_PATCH=1
+ARG APPLY_STANDALONE_STATION_CONTROLS_PATCH=1
 
 WORKDIR /src
 COPY patches/ /patches/
@@ -49,6 +50,9 @@ RUN git clone --filter=blob:none "${SUBWAVE_REPO}" subwave \
      fi \
   && if [ "${APPLY_STANDALONE_STATION_SETUP_PATCH}" = "1" ]; then \
        git apply --recount /patches/standalone-station-setup.patch; \
+     fi \
+  && if [ "${APPLY_STANDALONE_STATION_CONTROLS_PATCH}" = "1" ]; then \
+       git apply --recount /patches/standalone-station-controls.patch; \
      fi \
   && if [ "${APPLY_PRISM_APP_BRANDING_PATCH}" = "1" ]; then \
        git apply --recount /patches/prism-app-branding.patch; \
