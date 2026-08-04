@@ -1,0 +1,107 @@
+diff --git a/web/components/skins/prism/Prism.module.css b/web/components/skins/prism/Prism.module.css
+--- a/web/components/skins/prism/Prism.module.css
++++ b/web/components/skins/prism/Prism.module.css
+@@ -68,6 +68,14 @@
+   isolation: isolate;
+ }
+ 
++.stageGrid {
++  min-height: 0;
++}
++
++.contentStack {
++  min-height: 0;
++}
++
+ .sideRow {
+   position: relative;
+   z-index: 0;
+@@ -413,33 +421,56 @@
+ }
+ 
+ @media (min-width: 1180px) {
++  .stageGrid {
++    grid-template-rows: minmax(0, 1fr) auto;
++    overflow: hidden;
++  }
++
++  .contentStack {
++    gap: clamp(0.65rem, 1.45vh, 1rem);
++    overflow: hidden;
++  }
++
++  .title {
++    max-height: 2.06em;
++  }
++
++  .micText {
++    max-height: clamp(3em, 9vh, 4.45em);
++  }
++
+   .signalMeter {
+     margin-top: 0.2rem;
+     margin-bottom: 0;
+   }
+ 
+   .controlRail {
+-    margin-top: clamp(1.4rem, 3.2vh, 2.4rem);
++    margin-top: clamp(0.75rem, 1.8vh, 1.4rem);
+   }
+ 
+   .signalFloor {
+-    position: absolute;
+-    right: 1.5rem;
+-    bottom: 1.35rem;
+-    left: 1.5rem;
++    position: relative;
+     z-index: 1;
++    grid-row: 2;
++    grid-column: 1 / -1;
+     display: grid;
+     grid-template-columns: minmax(11rem, 1.25fr) minmax(8rem, 0.85fr) minmax(12rem, 1.4fr) minmax(10rem, 1.05fr);
+-    gap: clamp(1.2rem, 3vw, 3rem);
+-    padding-top: 1.05rem;
++    grid-template-rows: auto auto;
++    column-gap: clamp(1.2rem, 3vw, 3rem);
++    row-gap: 0.65rem;
++    min-height: clamp(6.35rem, 13vh, 8rem);
++    padding-top: 0.85rem;
+     border-top: 1px solid color-mix(in oklab, var(--line) 26%, transparent);
+     color: color-mix(in oklab, var(--accent-2) 62%, transparent);
+     opacity: 0.62;
+   }
+ 
+   .footerWave {
+-    position: absolute;
+-    top: -3.75rem;
+-    right: 0;
+-    left: 0;
++    position: relative;
++    grid-column: 1 / -1;
+     display: block;
+-    height: 3.7rem;
++    height: clamp(2.3rem, 5.3vh, 3.25rem);
+     pointer-events: none;
+     opacity: 0.22;
+     mask-image: linear-gradient(90deg, transparent 0%, black 15%, black 85%, transparent 100%);
+diff --git a/web/components/skins/prism/PrismSkin.tsx b/web/components/skins/prism/PrismSkin.tsx
+--- a/web/components/skins/prism/PrismSkin.tsx
++++ b/web/components/skins/prism/PrismSkin.tsx
+@@ -448,7 +448,7 @@ export default function PrismSkin(_props: SkinProps) {
+         <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-4 overflow-y-auto min-[1180px]:grid-cols-[minmax(0,1fr)_minmax(270px,320px)] min-[1180px]:overflow-hidden">
+           <main className={cn('relative overflow-visible border min-[1180px]:min-h-0 min-[1180px]:overflow-hidden', styles.glass)}>
+             <div className={cn('pointer-events-none absolute inset-0', styles.stageScrim)} aria-hidden="true" />
+-            <div className="relative z-10 grid min-w-0 grid-cols-1 gap-6 p-4 min-[1180px]:h-full min-[1180px]:min-h-0 min-[1180px]:grid-cols-[minmax(300px,43vh)_minmax(0,1fr)] min-[1180px]:p-6 xl:grid-cols-[minmax(360px,52vh)_minmax(0,1fr)]">
++            <div className={cn('relative z-10 grid min-w-0 grid-cols-1 gap-6 p-4 min-[1180px]:h-full min-[1180px]:min-h-0 min-[1180px]:grid-cols-[minmax(300px,43vh)_minmax(0,1fr)] min-[1180px]:p-6 xl:grid-cols-[minmax(360px,52vh)_minmax(0,1fr)]', styles.stageGrid)}>
+               <div className="contents min-[1180px]:flex min-[1180px]:min-w-0 min-[1180px]:flex-col min-[1180px]:justify-start min-[1180px]:gap-5">
+                 <div className="relative order-1 aspect-square w-full max-w-[460px] self-center overflow-hidden border border-[color-mix(in_oklab,var(--line)_62%,transparent)] bg-[color-mix(in_oklab,var(--bg)_34%,transparent)] shadow-2xl shadow-[color-mix(in_oklab,var(--bg)_72%,transparent)] min-[1180px]:max-w-none min-[1180px]:self-auto">
+                   {coverSrc && !offline ? (
+@@ -462,7 +462,7 @@ export default function PrismSkin(_props: SkinProps) {
+                 <div className="order-3 min-[1180px]:hidden" />
+               </div>
+ 
+-              <div className="order-2 flex min-w-0 flex-col justify-start gap-4 py-2 min-[1180px]:order-none min-[1180px]:h-full min-[1180px]:py-0">
++              <div className={cn('order-2 flex min-w-0 flex-col justify-start gap-4 py-2 min-[1180px]:order-none min-[1180px]:h-full min-[1180px]:py-0', styles.contentStack)}>
+                 <div className="min-w-0">
+                   <span className="bg-[var(--accent)] px-2 py-1 font-mono text-[10px] font-black text-bg uppercase">
+                     {nowPlayingLabel}
