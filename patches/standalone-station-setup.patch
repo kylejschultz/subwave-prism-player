@@ -1,0 +1,276 @@
+diff --git a/web/components/PlayerApp.tsx b/web/components/PlayerApp.tsx
+--- a/web/components/PlayerApp.tsx
++++ b/web/components/PlayerApp.tsx
+@@ -9,6 +9,7 @@
+ // showcase embeds.
+ 
+ import PlayerShell from './player/PlayerShell';
++import StationSetup from './player/StationSetup';
+ import { StationTunerProvider, useStationTuner } from './player/StationTuner';
+ import { DEFAULT_STATION_ORIGIN, StationOriginProvider } from '@/lib/stationOrigin';
+ 
+@@ -27,6 +28,8 @@ export default function PlayerApp({ contained = false }: PlayerAppProps) {
+ 
+ function TunedPlayerShell() {
+   const tuner = useStationTuner();
++  if (tuner?.setupRequired && tuner.loading) return null;
++  if (tuner?.needsSetup) return <StationSetup />;
+   return (
+     <StationOriginProvider value={tuner?.origin ?? DEFAULT_STATION_ORIGIN}>
+       <PlayerShell key={tuner?.active.slug ?? '__local'} />
+diff --git a/web/components/player/StationSetup.tsx b/web/components/player/StationSetup.tsx
+new file mode 100644
+--- /dev/null
++++ b/web/components/player/StationSetup.tsx
+@@ -0,0 +1,161 @@
++'use client';
++
++import { FormEvent, useMemo, useState } from 'react';
++import { Loader2, Radio, RadioTower } from 'lucide-react';
++import { useStationTuner } from './StationTuner';
++
++type Phase = 'idle' | 'checking' | 'ready' | 'error';
++
++function normalizeStationUrl(input: string): string | null {
++  try {
++    const url = new URL(input.trim().match(/^https?:\/\//i) ? input.trim() : `https://${input.trim()}`);
++    return url.origin;
++  } catch {
++    return null;
++  }
++}
++
++async function validateStation(origin: string): Promise<string | null> {
++  const controller = new AbortController();
++  const timeout = setTimeout(() => controller.abort(), 5000);
++  try {
++    const res = await fetch(`${origin}/api/state`, {
++      cache: 'no-store',
++      signal: controller.signal,
++    });
++    if (!res.ok) return 'That address answered, but not like a Subwave station.';
++    const data: unknown = await res.json();
++    if (data && typeof data === 'object') return null;
++    return 'That station response was not readable.';
++  } catch {
++    return 'Could not reach a Subwave station at that address.';
++  } finally {
++    clearTimeout(timeout);
++  }
++}
++
++export default function StationSetup() {
++  const tuner = useStationTuner();
++  const [url, setUrl] = useState('');
++  const [phase, setPhase] = useState<Phase>('idle');
++  const [message, setMessage] = useState('');
++  const savedStations = useMemo(
++    () => tuner?.stations.filter(station => !station.isLocal) ?? [],
++    [tuner?.stations],
++  );
++
++  const submit = async (event: FormEvent<HTMLFormElement>) => {
++    event.preventDefault();
++    if (!tuner || phase === 'checking') return;
++    setMessage('');
++    const origin = normalizeStationUrl(url);
++    if (!origin) {
++      setPhase('error');
++      setMessage('Enter a valid station URL.');
++      return;
++    }
++
++    setPhase('checking');
++    const error = await validateStation(origin);
++    if (error) {
++      setPhase('error');
++      setMessage(error);
++      return;
++    }
++
++    const station = tuner.addCustomStation(origin);
++    if (!station) {
++      setPhase('error');
++      setMessage('Could not save that station.');
++      return;
++    }
++    setPhase('ready');
++    setMessage(`Tuned to ${station.name}.`);
++  };
++
++  return (
++    <main className="fixed inset-0 overflow-y-auto bg-bg text-ink">
++      <div className="flex min-h-svh items-center justify-center px-5 py-10">
++        <section className="w-full max-w-[460px] border border-ink bg-bg p-5 shadow-[8px_8px_0_var(--ink)] sm:p-6">
++          <div className="mb-6 flex items-start justify-between gap-4">
++            <div>
++              <div className="v3-eyebrow mb-2 flex items-center gap-2">
++                <RadioTower size={15} strokeWidth={1.8} />
++                Prism for Subwave
++              </div>
++              <h1 className="font-display text-[32px] leading-none sm:text-[42px]">
++                Choose station
++              </h1>
++            </div>
++            <div className="grid size-12 shrink-0 place-items-center border border-ink bg-ink text-bg">
++              <Radio size={22} strokeWidth={1.8} />
++            </div>
++          </div>
++
++          <form onSubmit={submit} className="space-y-4">
++            <label className="block">
++              <span className="v3-caption mb-2 block text-muted">Station URL</span>
++              <input
++                value={url}
++                onChange={event => {
++                  setUrl(event.target.value);
++                  if (phase !== 'checking') {
++                    setPhase('idle');
++                    setMessage('');
++                  }
++                }}
++                placeholder="https://radio.example.com"
++                inputMode="url"
++                autoCapitalize="none"
++                autoCorrect="off"
++                className="v3-focus w-full border border-ink bg-bg px-3 py-3 font-mono text-[14px] text-ink outline-none placeholder:text-muted"
++              />
++            </label>
++
++            <button
++              type="submit"
++              disabled={phase === 'checking'}
++              className="v3-focus flex h-11 w-full items-center justify-center gap-2 border border-ink bg-ink px-4 text-[12px] font-bold tracking-[0.14em] text-bg uppercase disabled:cursor-wait disabled:opacity-70"
++            >
++              {phase === 'checking' && <Loader2 size={15} className="animate-spin" />}
++              {phase === 'checking' ? 'Checking' : 'Tune in'}
++            </button>
++
++            {message && (
++              <p
++                className="v3-caption border border-dashed border-ink px-3 py-2 text-ink"
++                role={phase === 'error' ? 'alert' : 'status'}
++              >
++                {message}
++              </p>
++            )}
++          </form>
++
++          {savedStations.length > 0 && (
++            <div className="mt-6 border-t border-dashed border-ink pt-4">
++              <div className="v3-caption mb-2 text-muted">Saved</div>
++              <div className="grid gap-2">
++                {savedStations.map(station => (
++                  <button
++                    key={station.slug}
++                    type="button"
++                    onClick={() => tuner?.setStation(station.slug)}
++                    className="v3-focus flex items-center justify-between gap-3 border border-line px-3 py-2 text-left hover:border-ink"
++                  >
++                    <span className="min-w-0 truncate text-[13px] font-bold">{station.name}</span>
++                    <span className="v3-caption shrink-0 text-muted">Open</span>
++                  </button>
++                ))}
++              </div>
++            </div>
++          )}
++        </section>
++      </div>
++    </main>
++  );
++}
+diff --git a/web/components/player/StationTuner.tsx b/web/components/player/StationTuner.tsx
+--- a/web/components/player/StationTuner.tsx
++++ b/web/components/player/StationTuner.tsx
+@@ -17,6 +17,9 @@ import {
+ 
+ const STORAGE_KEY = 'subwave.stationOverride.v1';
+ const CUSTOM_STATIONS_KEY = 'subwave.customStations.v1';
++const STANDALONE_SETUP =
++  process.env.NEXT_PUBLIC_SUBWAVE_STATION_SETUP === 'required' ||
++  process.env.NEXT_PUBLIC_PRISM_STANDALONE === 'true';
+ 
+ export interface TunerStation {
+   slug: string;
+@@ -31,6 +34,8 @@ interface StationTunerContextValue {
+   active: TunerStation;
+   stations: TunerStation[];
+   loading: boolean;
++  setupRequired: boolean;
++  needsSetup: boolean;
+   origin: StationOrigin;
+   addCustomStation: (input: string) => TunerStation | null;
+   setStation: (slug: string) => void;
+@@ -97,15 +102,41 @@ function loadSavedSlug(): string {
+   return window.localStorage.getItem(STORAGE_KEY) || LOCAL_STATION.slug;
+ }
+ 
++function stationUrlFromSearch(): string | null {
++  if (typeof window === 'undefined') return null;
++  const params = new URLSearchParams(window.location.search);
++  return params.get('station') || params.get('stationUrl') || params.get('url');
++}
++
+ export function StationTunerProvider({ children }: { children: ReactNode }) {
+   const [stations, setStations] = useState<TunerStation[]>([LOCAL_STATION]);
+   const [activeSlug, setActiveSlug] = useState(LOCAL_STATION.slug);
+   const [loading, setLoading] = useState(true);
+ 
+   useEffect(() => {
+-    setActiveSlug(loadSavedSlug());
+     const custom = loadCustomStations();
+-    if (custom.length > 0) setStations([LOCAL_STATION, ...custom]);
++    const launchStation = stationUrlFromSearch();
++    if (launchStation) {
++      const station = stationFromUrl(launchStation);
++      if (station) {
++        const merged = [station, ...custom.filter(s => s.url !== station.url)];
++        saveCustomStations(merged);
++        setStations([LOCAL_STATION, ...merged]);
++        setActiveSlug(station.slug);
++        window.localStorage.setItem(STORAGE_KEY, station.slug);
++        const url = new URL(window.location.href);
++        url.searchParams.delete('station');
++        url.searchParams.delete('stationUrl');
++        url.searchParams.delete('url');
++        window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
++      } else {
++        setActiveSlug(loadSavedSlug());
++        if (custom.length > 0) setStations([LOCAL_STATION, ...custom]);
++      }
++    } else {
++      setActiveSlug(loadSavedSlug());
++      if (custom.length > 0) setStations([LOCAL_STATION, ...custom]);
++    }
+     let alive = true;
+     void (async () => {
+       try {
+@@ -128,6 +159,8 @@ export function StationTunerProvider({ children }: { children: ReactNode }) {
+ 
+   const active = stations.find(station => station.slug === activeSlug) ?? LOCAL_STATION;
+   const origin = active.isLocal ? DEFAULT_STATION_ORIGIN : originForStation(active.url);
++  const hasSavedRemoteStation = stations.some(station => !station.isLocal);
++  const needsSetup = !loading && STANDALONE_SETUP && active.isLocal === true && !hasSavedRemoteStation;
+   const setStation = useCallback((slug: string) => {
+     const next = slug || LOCAL_STATION.slug;
+     setActiveSlug(next);
+@@ -153,8 +186,17 @@ export function StationTunerProvider({ children }: { children: ReactNode }) {
+   }, [stations]);
+ 
+   const value = useMemo<StationTunerContextValue>(
+-    () => ({ active, stations, loading, origin, addCustomStation, setStation }),
+-    [active, stations, loading, origin, addCustomStation, setStation],
++    () => ({
++      active,
++      stations,
++      loading,
++      setupRequired: STANDALONE_SETUP,
++      needsSetup,
++      origin,
++      addCustomStation,
++      setStation,
++    }),
++    [active, stations, loading, needsSetup, origin, addCustomStation, setStation],
+   );
+ 
+   return (

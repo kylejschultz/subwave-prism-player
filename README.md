@@ -2,18 +2,19 @@
 
 Small deployment wrapper for Kyle's Prism-flavored SUB/WAVE player.
 
-This repo does not own the player implementation. It builds the SUB/WAVE web frontend from a pinned git ref, applies Kyle's Prism skin patches from `subwave-skins`, applies a tiny Prism-default patch, points the client at the live station, and packages the result as a standalone container.
+This repo does not own the player implementation. It builds the SUB/WAVE web frontend from a pinned git ref, applies Kyle's Prism skin patches from `subwave-skins`, applies Prism standalone-player patches, and packages the result as a standalone container.
 
 ## Shape
 
-- `radio.gurthyy.xyz` is the public SUB/WAVE station, API, admin, and stream.
-- This container runs the full SUB/WAVE web frontend as a player-first surface.
-- The browser client is built with `NEXT_PUBLIC_API_URL=https://radio.gurthyy.xyz/api`.
-- The browser stream URL is built with `NEXT_PUBLIC_STREAM_URL=https://radio.gurthyy.xyz/stream.mp3`.
+- This container runs the SUB/WAVE web frontend as a Prism-first player surface.
+- First launch asks the listener for a SUB/WAVE station URL, validates it against `/api/state`, and saves it in browser storage.
+- Launch links can preselect a station with `?station=https://radio.example.com`.
 - `https://github.com/kylejschultz/subwave-skins` supplies the Prism patch series and skin files.
 - `patches/prism-default.patch` changes the fallback player skin from `classic` to `prism`.
 - `patches/player-only.patch` redirects `/` to Prism and sends `/admin` and `/setup` back to the player.
 - `patches/prism-only.patch` hides upstream skins and filters the theme picker to Kyle's Prism theme allowlist.
+- `patches/standalone-station-setup.patch` adds first-time station setup.
+- `patches/prism-app-branding.patch` gives the installable PWA a Prism identity.
 
 ## Required Source Ref
 
@@ -48,10 +49,7 @@ http://localhost:7703/
 
 Add this as a separate service alongside the media/SUB/WAVE stack, or run this compose project independently and put it behind the existing Cloudflare tunnel.
 
-The service only needs HTTP access to:
-
-- `https://radio.gurthyy.xyz/api`
-- `https://radio.gurthyy.xyz/stream.mp3`
+The service serves the player shell. Browsers need access to whichever SUB/WAVE station URL the listener saves.
 
 Suggested public hostname:
 
@@ -89,10 +87,13 @@ Repository variables can override the defaults:
 - `APPLY_PRISM_DEFAULT_PATCH`
 - `APPLY_PLAYER_ONLY_PATCH`
 - `APPLY_PRISM_ONLY_PATCH`
+- `APPLY_STANDALONE_STATION_SETUP_PATCH`
+- `APPLY_PRISM_APP_BRANDING_PATCH`
 - `PLAYER_SITE_URL`
 - `SUBWAVE_PUBLIC_API_URL`
 - `SUBWAVE_PUBLIC_STREAM_URL`
 - `PRISM_THEME_IDS` — comma-separated theme IDs visible in the Prism player; empty by default, which shows every station theme
+- `NEXT_PUBLIC_SUBWAVE_STATION_SETUP` — defaults to `required`
 - `NEXT_PUBLIC_GA_ID`
 - `SUBWAVE_BUILD_VERSION`
 

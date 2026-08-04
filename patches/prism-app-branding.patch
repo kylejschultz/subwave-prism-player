@@ -1,0 +1,86 @@
+diff --git a/web/app/layout.tsx b/web/app/layout.tsx
+--- a/web/app/layout.tsx
++++ b/web/app/layout.tsx
+@@ -110,10 +110,10 @@ const overpassMono = Overpass_Mono({
+ });
+ 
+ const DESCRIPTION =
+-  'A real internet radio station. Single Icecast stream — every listener hears the same broadcast at the same time, picked and announced by an LLM-driven DJ.';
++  'A standalone Prism player for Subwave radio stations.';
+ 
+-const SOCIAL_TITLE = 'SUB/WAVE — A real internet radio station';
+-const OG_IMAGE_ALT = 'SUB/WAVE — a real internet radio station';
++const SOCIAL_TITLE = 'Prism for Subwave';
++const OG_IMAGE_ALT = 'Prism for Subwave player';
+ 
+ // Site-wide structured data. WebSite + Organization give search engines the
+ // canonical name/logo to attach to rich results across every page.
+@@ -122,14 +122,14 @@ const SITE_JSONLD = [
+     '@context': 'https://schema.org',
+     '@type': 'WebSite',
+-    name: 'SUB/WAVE',
++    name: 'Prism for Subwave',
+     url: SITE_URL,
+     description: DESCRIPTION,
+   },
+   {
+     '@context': 'https://schema.org',
+     '@type': 'Organization',
+-    name: 'SUB/WAVE',
++    name: 'Prism for Subwave',
+     url: SITE_URL,
+     logo: `${SITE_URL}/icons/512`,
+   },
+@@ -161,11 +161,11 @@ const SITE_JSONLD = [
+ export const metadata: Metadata = {
+   metadataBase: new URL(SITE_URL),
+-  title: { default: 'SUB/WAVE', template: '%s · SUB/WAVE' },
++  title: { default: 'Prism for Subwave', template: '%s · Prism' },
+   description: DESCRIPTION,
+-  applicationName: 'SUB/WAVE',
++  applicationName: 'Prism for Subwave',
+   // iOS standalone-install + status bar styling. Android picks these up via
+   // manifest.js; iOS still needs the `apple-mobile-web-app-*` metas.
+   appleWebApp: {
+     capable: true,
+-    title: 'SUB/WAVE',
++    title: 'Prism',
+     statusBarStyle: 'black-translucent',
+   },
+diff --git a/web/app/manifest.ts b/web/app/manifest.ts
+--- a/web/app/manifest.ts
++++ b/web/app/manifest.ts
+@@ -8,13 +8,12 @@ export default function manifest(): MetadataRoute.Manifest {
+     // Stable identity for the installed app. Pinned so changing start_url
+     // later doesn't make the browser treat it as a different PWA and ship a
+     // duplicate icon to home screens.
+-    id: '/',
+-    name: 'SUB/WAVE',
+-    short_name: 'SUB/WAVE',
++    id: '/prism-subwave-player',
++    name: 'Prism for Subwave',
++    short_name: 'Prism',
+     description:
+-      'Personal internet radio — single live stream, AI DJ between tracks.',
+-    start_url: '/',
++      'A standalone Prism player for Subwave radio stations.',
++    start_url: '/?skin=prism',
+     scope: '/',
+     display: 'standalone',
+@@ -39,13 +38,13 @@ export default function manifest(): MetadataRoute.Manifest {
+         sizes: '1280x720',
+         type: 'image/png',
+         form_factor: 'wide',
+-        label: 'SUB/WAVE player — now playing on the broadcast',
++        label: 'Prism player for Subwave',
+       },
+       {
+         src: '/screenshots/narrow',
+         sizes: '720x1280',
+         type: 'image/png',
+         form_factor: 'narrow',
+-        label: 'SUB/WAVE on mobile',
++        label: 'Prism on mobile',
+       },
+     ],
+   };
