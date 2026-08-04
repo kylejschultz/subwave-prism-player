@@ -84,3 +84,18 @@ diff --git a/web/app/manifest.ts b/web/app/manifest.ts
        },
      ],
    };
+diff --git a/web/app/page.tsx b/web/app/page.tsx
+--- a/web/app/page.tsx
++++ b/web/app/page.tsx
+@@ -22,8 +22,11 @@ export async function generateMetadata(): Promise<Metadata> {
+   };
+ 
+   const mode = (process.env.SUBWAVE_HOMEPAGE || 'player').toLowerCase();
+-  if (mode !== 'player') return base;
++  const setupRequired =
++    process.env.NEXT_PUBLIC_SUBWAVE_STATION_SETUP === 'required' ||
++    process.env.NEXT_PUBLIC_PRISM_STANDALONE === 'true';
++  if (mode !== 'player' || setupRequired) return base;
+ 
+   // allowPersonaTagline: issue #272 shipped tagline-personalised previews here,
+   // so keep them for installs that never set a station description. Setting one
