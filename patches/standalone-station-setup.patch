@@ -249,7 +249,7 @@ diff --git a/web/components/player/StationTuner.tsx b/web/components/player/Stat
  
    const active = stations.find(station => station.slug === activeSlug) ?? LOCAL_STATION;
    const origin = active.isLocal ? DEFAULT_STATION_ORIGIN : originForStation(active.url);
-+  const hasSavedRemoteStation = stations.some(station => !station.isLocal);
++  const hasSavedRemoteStation = stations.some(station => !station.isLocal && station.slug.startsWith('custom-'));
 +  const needsSetup = !loading && STANDALONE_SETUP && active.isLocal === true && !hasSavedRemoteStation;
    const setStation = useCallback((slug: string) => {
      const next = slug || LOCAL_STATION.slug;

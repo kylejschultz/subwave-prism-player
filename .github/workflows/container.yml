@@ -55,8 +55,8 @@ jobs:
             APPLY_STANDALONE_STATION_SETUP_PATCH=${{ vars.APPLY_STANDALONE_STATION_SETUP_PATCH || '1' }}
             APPLY_PRISM_APP_BRANDING_PATCH=${{ vars.APPLY_PRISM_APP_BRANDING_PATCH || '1' }}
             SITE_URL=${{ vars.PLAYER_SITE_URL || 'https://prism.gurthyy.xyz' }}
-            NEXT_PUBLIC_API_URL=${{ vars.SUBWAVE_PUBLIC_API_URL || '' }}
-            NEXT_PUBLIC_STREAM_URL=${{ vars.SUBWAVE_PUBLIC_STREAM_URL || '' }}
+            NEXT_PUBLIC_API_URL=
+            NEXT_PUBLIC_STREAM_URL=
             NEXT_PUBLIC_PRISM_THEME_IDS=${{ vars.PRISM_THEME_IDS || '' }}
             NEXT_PUBLIC_SUBWAVE_STATION_SETUP=${{ vars.NEXT_PUBLIC_SUBWAVE_STATION_SETUP || 'required' }}
             NEXT_PUBLIC_GA_ID=${{ vars.NEXT_PUBLIC_GA_ID || '' }}
