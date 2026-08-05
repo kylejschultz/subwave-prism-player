@@ -8,9 +8,9 @@ index d7eec68c..791d47b5 100644
 
 +.stageGrid {
 +  --prism-ui-scale: 1;
-+  --prism-cover-size: clamp(16rem, 46vh, 34rem);
++  --prism-cover-size: clamp(16rem, 40vh, 30rem);
 +  --prism-panel-gap: clamp(0.65rem, 1.45vh, 1rem);
-+  --prism-footer-height: clamp(7.5rem, 14vh, 9.75rem);
++  --prism-footer-height: clamp(14rem, 29vh, 20rem);
 +  min-height: 0;
 +}
 +
@@ -78,18 +78,18 @@ index d7eec68c..791d47b5 100644
 
  @media (min-width: 1180px) {
 +  .stageGrid {
-+    --prism-cover-size: clamp(15rem, 48vh, 32rem);
-+    --prism-footer-height: clamp(7.4rem, 13.5vh, 9.25rem);
++    --prism-cover-size: clamp(15rem, 40vh, 30rem);
++    --prism-footer-height: clamp(13.5rem, 29vh, 19rem);
 +    grid-template-columns: minmax(15rem, var(--prism-cover-size)) minmax(0, 1fr) !important;
-+    grid-template-rows: minmax(0, 1fr) var(--prism-footer-height);
-+    align-items: end;
-+    gap: clamp(0.8rem, 1.9vh, 1.45rem) clamp(1rem, 2.2vw, 1.6rem) !important;
++    grid-template-rows: minmax(0, calc(100% - var(--prism-footer-height))) var(--prism-footer-height);
++    align-items: center;
++    gap: clamp(1rem, 2vh, 1.6rem) clamp(1rem, 2.2vw, 1.6rem) !important;
 +    padding: clamp(0.9rem, 2vh, 1.5rem) !important;
 +    overflow: hidden;
 +  }
 +
 +  .coverColumn {
-+    align-self: end;
++    align-self: center;
 +    height: min(var(--prism-cover-size), 100%);
 +  }
 +
@@ -99,7 +99,7 @@ index d7eec68c..791d47b5 100644
 +  }
 +
 +  .contentStack {
-+    align-self: end;
++    align-self: center;
 +    gap: var(--prism-panel-gap);
 +    overflow: visible;
 +  }
@@ -150,8 +150,8 @@ index d7eec68c..791d47b5 100644
 -    gap: clamp(1.2rem, 3vw, 3rem);
 -    padding-top: 1.05rem;
 -    border-top: 1px solid color-mix(in oklab, var(--line) 26%, transparent);
-+    grid-template-rows: minmax(1.35rem, 0.36fr) minmax(0, 1fr);
-+    gap: clamp(0.35rem, 0.85vh, 0.7rem);
++    grid-template-rows: clamp(1.9rem, 4vh, 2.7rem) minmax(0, 1fr);
++    gap: clamp(0.55rem, 1.05vh, 0.85rem);
 +    height: var(--prism-footer-height);
 +    min-height: 0;
 +    padding-top: 0;
@@ -181,10 +181,11 @@ index d7eec68c..791d47b5 100644
 +  .footerPanel {
 +    display: grid;
 +    min-height: 0;
-+    grid-template-columns: minmax(10rem, 0.85fr) minmax(18rem, 1.6fr) minmax(10rem, 0.85fr);
-+    gap: clamp(0.75rem, 1.7vw, 1.5rem);
++    grid-template-columns: minmax(11rem, 0.85fr) minmax(22rem, 1.8fr) minmax(11rem, 0.85fr);
++    grid-template-rows: 1fr;
++    gap: clamp(0.95rem, 2vw, 1.8rem);
 +    align-items: stretch;
-+    padding: clamp(0.7rem, 1.25vh, 1rem) clamp(0.8rem, 1.6vw, 1.2rem);
++    padding: clamp(0.95rem, 1.8vh, 1.35rem) clamp(1rem, 2vw, 1.55rem);
 +    border: 1px solid color-mix(in oklab, var(--line) 28%, transparent);
 +    background: color-mix(in oklab, var(--bg) 38%, transparent);
 +    box-shadow: inset 0 1px 0 color-mix(in oklab, var(--ink) 6%, transparent);
@@ -200,7 +201,7 @@ index d7eec68c..791d47b5 100644
 
    .signalFloor p {
 -    margin-top: 0.38rem;
-+    margin-top: 0.25rem;
++    margin-top: 0.38rem;
      overflow: hidden;
 -    font-size: 0.78rem;
 +    font-size: calc(0.84rem * var(--prism-ui-scale));
@@ -227,10 +228,12 @@ index d7eec68c..791d47b5 100644
 -    margin-top: 0.38rem;
 +  .footerLyrics p {
 +    display: -webkit-box;
-+    margin-top: 0.2rem;
++    margin-top: 0.45rem;
++    font-size: calc(1rem * var(--prism-ui-scale));
++    line-height: 1.32;
 +    white-space: normal;
 +    -webkit-box-orient: vertical;
-+    -webkit-line-clamp: 2;
++    -webkit-line-clamp: 4;
      color: color-mix(in oklab, var(--ink) 78%, var(--accent) 22%);
    }
 
@@ -274,10 +277,10 @@ index d7eec68c..791d47b5 100644
 +@media (min-width: 1180px) and (max-height: 820px) {
 +  .stageGrid {
 +    --prism-ui-scale: 0.86;
-+    --prism-cover-size: clamp(12rem, 39vh, 23rem);
++    --prism-cover-size: clamp(12rem, 35vh, 22rem);
 +    --prism-panel-gap: 0.58rem;
-+    --prism-footer-height: clamp(5.8rem, 12vh, 7.2rem);
-+    grid-template-rows: minmax(0, 1fr) var(--prism-footer-height);
++    --prism-footer-height: clamp(11.5rem, 28vh, 15rem);
++    grid-template-rows: minmax(0, calc(100% - var(--prism-footer-height))) var(--prism-footer-height);
 +  }
 +
 +  .title {
@@ -294,11 +297,11 @@ index d7eec68c..791d47b5 100644
 +  }
 +
 +  .signalFloor {
-+    grid-template-rows: minmax(0.75rem, 0.26fr) minmax(0, 1fr);
++    grid-template-rows: clamp(1.4rem, 3.3vh, 2rem) minmax(0, 1fr);
 +  }
 +
 +  .footerPanel {
-+    padding: 0.5rem 0.72rem;
++    padding: 0.75rem 0.9rem;
 +  }
 +
 +  .signalFloor p {
@@ -310,10 +313,10 @@ index d7eec68c..791d47b5 100644
 +@media (min-width: 1180px) and (max-height: 720px) {
 +  .stageGrid {
 +    --prism-ui-scale: 0.74;
-+    --prism-cover-size: clamp(9.5rem, 32vh, 17rem);
++    --prism-cover-size: clamp(9.5rem, 29vh, 16rem);
 +    --prism-panel-gap: 0.42rem;
-+    --prism-footer-height: clamp(4.5rem, 10.5vh, 5.6rem);
-+    grid-template-rows: minmax(0, 1fr) var(--prism-footer-height);
++    --prism-footer-height: clamp(9rem, 27vh, 11.5rem);
++    grid-template-rows: minmax(0, calc(100% - var(--prism-footer-height))) var(--prism-footer-height);
 +  }
 +
 +  .contentStack {
@@ -335,13 +338,13 @@ index d7eec68c..791d47b5 100644
 +
 +  .signalFloor {
 +    display: grid;
-+    grid-template-rows: minmax(0.4rem, 0.18fr) minmax(0, 1fr);
++    grid-template-rows: clamp(0.9rem, 2.6vh, 1.5rem) minmax(0, 1fr);
 +  }
 +
 +  .footerPanel {
-+    grid-template-columns: minmax(7rem, 0.9fr) minmax(10rem, 1.35fr) minmax(7rem, 0.9fr);
++    grid-template-columns: minmax(7rem, 0.9fr) minmax(12rem, 1.45fr) minmax(7rem, 0.9fr);
 +    gap: 0.45rem;
-+    padding: 0.36rem 0.55rem;
++    padding: 0.5rem 0.65rem;
 +  }
 +
 +  .signalFloor p,
