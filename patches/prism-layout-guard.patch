@@ -621,7 +621,11 @@ index a2e81ad..b6b047b 100644
 +
 +  useEffect(() => {
 +    if (activeLyric < 0) return;
-+    activeLyricRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
++    const scroller = lyricsScrollerRef.current;
++    const activeLine = activeLyricRef.current;
++    if (!scroller || !activeLine) return;
++    const top = activeLine.offsetTop - (scroller.clientHeight / 2) + (activeLine.clientHeight / 2);
++    scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
 +  }, [activeLyric]);
 +
    useEffect(() => {
@@ -739,7 +743,6 @@ index a2e81ad..b6b047b 100644
 +                            <span>{formatLyricOffset(lyricsOffsetMs)}</span>
 +                          </button>
 +                        )}
-+                        {showLyricsPanel && <span>{lyricsPayload?.synced ? 'Synced' : 'Plain'}</span>}
 +                      </div>
                      </div>
 -                  )}
