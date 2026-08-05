@@ -1,15 +1,24 @@
 diff --git a/web/components/skins/prism/Prism.module.css b/web/components/skins/prism/Prism.module.css
-index d7eec68..d18b08d 100644
+index d7eec68c..791d47b5 100644
 --- a/web/components/skins/prism/Prism.module.css
 +++ b/web/components/skins/prism/Prism.module.css
-@@ -61,6 +61,17 @@
+@@ -61,6 +61,26 @@
    isolation: isolate;
  }
- 
+
 +.stageGrid {
 +  --prism-ui-scale: 1;
-+  --prism-cover-size: clamp(14rem, 42vh, 32rem);
++  --prism-cover-size: clamp(16rem, 46vh, 34rem);
 +  --prism-panel-gap: clamp(0.65rem, 1.45vh, 1rem);
++  --prism-footer-height: clamp(7.5rem, 14vh, 9.75rem);
++  min-height: 0;
++}
++
++.coverColumn {
++  min-height: 0;
++}
++
++.coverArt {
 +  min-height: 0;
 +}
 +
@@ -20,10 +29,10 @@ index d7eec68..d18b08d 100644
  .sideRow {
    position: relative;
    z-index: 0;
-@@ -115,6 +126,30 @@
+@@ -115,6 +135,30 @@
    opacity: 0.94;
  }
- 
+
 +.artistLine {
 +  font-size: calc(1.45rem * var(--prism-ui-scale));
 +  line-height: 1.15;
@@ -51,7 +60,7 @@ index d7eec68..d18b08d 100644
  .signalFloor {
    display: none;
  }
-@@ -148,8 +183,10 @@
+@@ -148,8 +192,10 @@
  .controlButton {
    display: inline-grid;
    flex: 0 0 auto;
@@ -64,20 +73,33 @@ index d7eec68..d18b08d 100644
    place-items: center;
    border: 1px solid color-mix(in oklab, var(--line) 44%, transparent);
    background: color-mix(in oklab, var(--surface) 28%, transparent);
-@@ -412,37 +449,75 @@
+@@ -412,37 +458,84 @@
  }
- 
+
  @media (min-width: 1180px) {
 +  .stageGrid {
-+    --prism-cover-size: clamp(11.5rem, 38vh, 28rem);
-+    grid-template-columns: minmax(11.5rem, var(--prism-cover-size)) minmax(0, 1fr) !important;
-+    grid-template-rows: minmax(0, 1fr) minmax(0, auto);
-+    gap: clamp(0.65rem, 1.9vh, 1.5rem) clamp(1rem, 2.2vw, 1.5rem) !important;
++    --prism-cover-size: clamp(15rem, 48vh, 32rem);
++    --prism-footer-height: clamp(7.4rem, 13.5vh, 9.25rem);
++    grid-template-columns: minmax(15rem, var(--prism-cover-size)) minmax(0, 1fr) !important;
++    grid-template-rows: minmax(0, 1fr) var(--prism-footer-height);
++    align-items: end;
++    gap: clamp(0.8rem, 1.9vh, 1.45rem) clamp(1rem, 2.2vw, 1.6rem) !important;
 +    padding: clamp(0.9rem, 2vh, 1.5rem) !important;
 +    overflow: hidden;
 +  }
 +
++  .coverColumn {
++    align-self: end;
++    height: min(var(--prism-cover-size), 100%);
++  }
++
++  .coverArt {
++    height: min(var(--prism-cover-size), 100%);
++    max-height: 100%;
++  }
++
 +  .contentStack {
++    align-self: end;
 +    gap: var(--prism-panel-gap);
 +    overflow: visible;
 +  }
@@ -106,14 +128,14 @@ index d7eec68..d18b08d 100644
      margin-top: 0.2rem;
      margin-bottom: 0;
    }
- 
+
    .controlRail {
 -    margin-top: clamp(1.4rem, 3.2vh, 2.4rem);
 +    flex-shrink: 0;
 +    gap: calc(0.55rem * var(--prism-ui-scale));
 +    margin-top: clamp(0.35rem, 1.2vh, 1rem);
    }
- 
+
    .signalFloor {
 -    position: absolute;
 -    right: 1.5rem;
@@ -124,46 +146,106 @@ index d7eec68..d18b08d 100644
 +    grid-row: 2;
 +    grid-column: 1 / -1;
      display: grid;
-     grid-template-columns: minmax(11rem, 1.25fr) minmax(8rem, 0.85fr) minmax(12rem, 1.4fr) minmax(10rem, 1.05fr);
+-    grid-template-columns: minmax(11rem, 1.25fr) minmax(8rem, 0.85fr) minmax(12rem, 1.4fr) minmax(10rem, 1.05fr);
 -    gap: clamp(1.2rem, 3vw, 3rem);
 -    padding-top: 1.05rem;
 -    border-top: 1px solid color-mix(in oklab, var(--line) 26%, transparent);
-+    grid-template-rows: minmax(0, auto) minmax(0, auto);
-+    column-gap: clamp(1.2rem, 3vw, 3rem);
-+    row-gap: clamp(0.22rem, 0.75vh, 0.65rem);
-+    min-height: clamp(6rem, 12vh, 8.75rem);
-+    max-height: clamp(6rem, 12vh, 8.75rem);
-+    padding-top: clamp(0.28rem, 0.85vh, 0.85rem);
++    grid-template-rows: minmax(1.35rem, 0.36fr) minmax(0, 1fr);
++    gap: clamp(0.35rem, 0.85vh, 0.7rem);
++    height: var(--prism-footer-height);
++    min-height: 0;
++    padding-top: 0;
 +    border-top: 0;
      color: color-mix(in oklab, var(--accent-2) 62%, transparent);
-     opacity: 0.62;
+-    opacity: 0.62;
 +    overflow: hidden;
    }
- 
+
    .footerWave {
 -    position: absolute;
 -    top: -3.75rem;
 -    right: 0;
 -    left: 0;
 +    position: relative;
-+    grid-column: 1 / -1;
      display: block;
 -    height: 3.7rem;
-+    height: clamp(0.55rem, 2.8vh, 2.85rem);
++    min-height: 0;
      pointer-events: none;
      opacity: 0.22;
      mask-image: linear-gradient(90deg, transparent 0%, black 15%, black 85%, transparent 100%);
-@@ -465,7 +540,7 @@
+@@ -458,14 +551,30 @@
+     background: color-mix(in oklab, var(--accent) 22%, transparent);
+   }
+
+-  .signalFloor div {
++  .footerPanel {
++    display: grid;
++    min-height: 0;
++    grid-template-columns: minmax(10rem, 0.85fr) minmax(18rem, 1.6fr) minmax(10rem, 0.85fr);
++    gap: clamp(0.75rem, 1.7vw, 1.5rem);
++    align-items: stretch;
++    padding: clamp(0.7rem, 1.25vh, 1rem) clamp(0.8rem, 1.6vw, 1.2rem);
++    border: 1px solid color-mix(in oklab, var(--line) 28%, transparent);
++    background: color-mix(in oklab, var(--bg) 38%, transparent);
++    box-shadow: inset 0 1px 0 color-mix(in oklab, var(--ink) 6%, transparent);
++    backdrop-filter: blur(18px);
++    overflow: hidden;
++  }
++
++  .footerMeta,
++  .footerLyrics {
+     min-width: 0;
++    overflow: hidden;
+   }
+
    .signalFloor p {
-     margin-top: 0.38rem;
+-    margin-top: 0.38rem;
++    margin-top: 0.25rem;
      overflow: hidden;
 -    font-size: 0.78rem;
 +    font-size: calc(0.84rem * var(--prism-ui-scale));
      font-weight: 720;
      line-height: 1.2;
      text-overflow: ellipsis;
-@@ -494,7 +569,7 @@
-     margin-top: 0.18rem;
+@@ -473,28 +582,33 @@
+     white-space: nowrap;
+   }
+
+-  .weatherReport {
+-    display: grid;
+-    min-width: 0;
+-    gap: 0.18rem;
++  .footerLyrics {
++    display: flex;
++    min-height: 0;
++    flex-direction: column;
++    justify-content: center;
++    text-align: center;
+   }
+
+-  .weatherReport p {
+-    margin-top: 0.38rem;
++  .footerLyrics p {
++    display: -webkit-box;
++    margin-top: 0.2rem;
++    white-space: normal;
++    -webkit-box-orient: vertical;
++    -webkit-line-clamp: 2;
+     color: color-mix(in oklab, var(--ink) 78%, var(--accent) 22%);
+   }
+
+-  .weatherReport span {
+-    color: color-mix(in oklab, var(--accent-2) 54%, transparent);
++  .footerMeta:last-child {
++    text-align: right;
+   }
+
+-  .footerDetail,
+-  .weatherReport span {
++  .footerDetail {
+     display: block;
+-    margin-top: 0.18rem;
++    margin-top: 0.16rem;
      min-width: 0;
      overflow: hidden;
 -    font-size: 0.68rem;
@@ -171,7 +253,7 @@ index d7eec68..d18b08d 100644
      font-weight: 720;
      letter-spacing: 0.1em;
      line-height: 1.1;
-@@ -503,6 +578,123 @@
+@@ -503,6 +617,122 @@
      white-space: nowrap;
      color: color-mix(in oklab, var(--accent-2) 54%, transparent);
    }
@@ -192,9 +274,10 @@ index d7eec68..d18b08d 100644
 +@media (min-width: 1180px) and (max-height: 820px) {
 +  .stageGrid {
 +    --prism-ui-scale: 0.86;
-+    --prism-cover-size: clamp(10.75rem, 34vh, 22rem);
++    --prism-cover-size: clamp(12rem, 39vh, 23rem);
 +    --prism-panel-gap: 0.58rem;
-+    grid-template-rows: minmax(0, 1fr) minmax(2.8rem, auto);
++    --prism-footer-height: clamp(5.8rem, 12vh, 7.2rem);
++    grid-template-rows: minmax(0, 1fr) var(--prism-footer-height);
 +  }
 +
 +  .title {
@@ -211,28 +294,26 @@ index d7eec68..d18b08d 100644
 +  }
 +
 +  .signalFloor {
-+    max-height: 4.25rem;
-+    grid-template-rows: minmax(0, auto) minmax(0, auto);
-+    padding-top: 0.32rem;
-+    opacity: 0.48;
++    grid-template-rows: minmax(0.75rem, 0.26fr) minmax(0, 1fr);
 +  }
 +
-+  .footerWave {
-+    height: clamp(0.45rem, 1.9vh, 1rem);
++  .footerPanel {
++    padding: 0.5rem 0.72rem;
 +  }
 +
 +  .signalFloor p {
-+    margin-top: 0.22rem;
-+    font-size: 0.68rem;
++    margin-top: 0.16rem;
++    font-size: 0.66rem;
 +  }
 +}
 +
 +@media (min-width: 1180px) and (max-height: 720px) {
 +  .stageGrid {
 +    --prism-ui-scale: 0.74;
-+    --prism-cover-size: clamp(9.75rem, 30vh, 18rem);
++    --prism-cover-size: clamp(9.5rem, 32vh, 17rem);
 +    --prism-panel-gap: 0.42rem;
-+    grid-template-rows: minmax(0, 1fr) minmax(2.2rem, auto);
++    --prism-footer-height: clamp(4.5rem, 10.5vh, 5.6rem);
++    grid-template-rows: minmax(0, 1fr) var(--prism-footer-height);
 +  }
 +
 +  .contentStack {
@@ -254,18 +335,18 @@ index d7eec68..d18b08d 100644
 +
 +  .signalFloor {
 +    display: grid;
-+    max-height: 2.9rem;
-+    opacity: 0.36;
++    grid-template-rows: minmax(0.4rem, 0.18fr) minmax(0, 1fr);
 +  }
 +
-+  .footerWave {
-+    height: 0.35rem;
++  .footerPanel {
++    grid-template-columns: minmax(7rem, 0.9fr) minmax(10rem, 1.35fr) minmax(7rem, 0.9fr);
++    gap: 0.45rem;
++    padding: 0.36rem 0.55rem;
 +  }
 +
 +  .signalFloor p,
-+  .footerDetail,
-+  .weatherReport span {
-+    margin-top: 0.12rem;
++  .footerDetail {
++    margin-top: 0.08rem;
 +    font-size: 0.52rem;
 +    line-height: 1;
 +  }
@@ -293,13 +374,13 @@ index d7eec68..d18b08d 100644
 +    font-size: 0.54rem;
 +  }
  }
- 
+
  .progress {
 diff --git a/web/components/skins/prism/PrismSkin.tsx b/web/components/skins/prism/PrismSkin.tsx
-index a2e81ad..04a96a0 100644
+index a2e81ad..dd7e2b0f 100644
 --- a/web/components/skins/prism/PrismSkin.tsx
 +++ b/web/components/skins/prism/PrismSkin.tsx
-@@ -433,12 +433,12 @@ export default function PrismSkin(_props: SkinProps) {
+@@ -431,12 +433,12 @@ export default function PrismSkin(_props: SkinProps) {
              <img
                src={coverSrc}
                alt=""
@@ -314,25 +395,29 @@ index a2e81ad..04a96a0 100644
              />
            </>
          )}
-@@ -448,7 +448,7 @@ export default function PrismSkin(_props: SkinProps) {
+@@ -446,9 +448,9 @@ export default function PrismSkin(_props: SkinProps) {
          <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-4 overflow-y-auto min-[1180px]:grid-cols-[minmax(0,1fr)_minmax(270px,320px)] min-[1180px]:overflow-hidden">
            <main className={cn('relative overflow-visible border min-[1180px]:min-h-0 min-[1180px]:overflow-hidden', styles.glass)}>
              <div className={cn('pointer-events-none absolute inset-0', styles.stageScrim)} aria-hidden="true" />
 -            <div className="relative z-10 grid min-w-0 grid-cols-1 gap-6 p-4 min-[1180px]:h-full min-[1180px]:min-h-0 min-[1180px]:grid-cols-[minmax(300px,43vh)_minmax(0,1fr)] min-[1180px]:p-6 xl:grid-cols-[minmax(360px,52vh)_minmax(0,1fr)]">
+-              <div className="contents min-[1180px]:flex min-[1180px]:min-w-0 min-[1180px]:flex-col min-[1180px]:justify-start min-[1180px]:gap-5">
+-                <div className="relative order-1 aspect-square w-full max-w-[460px] self-center overflow-hidden border border-[color-mix(in_oklab,var(--line)_62%,transparent)] bg-[color-mix(in_oklab,var(--bg)_34%,transparent)] shadow-2xl shadow-[color-mix(in_oklab,var(--bg)_72%,transparent)] min-[1180px]:max-w-none min-[1180px]:self-auto">
 +            <div className={cn('relative z-10 grid min-w-0 grid-cols-1 gap-6 p-4 min-[1180px]:h-full min-[1180px]:min-h-0 min-[1180px]:grid-cols-[minmax(300px,43vh)_minmax(0,1fr)] min-[1180px]:p-6 xl:grid-cols-[minmax(360px,52vh)_minmax(0,1fr)]', styles.stageGrid)}>
-               <div className="contents min-[1180px]:flex min-[1180px]:min-w-0 min-[1180px]:flex-col min-[1180px]:justify-start min-[1180px]:gap-5">
-                 <div className="relative order-1 aspect-square w-full max-w-[460px] self-center overflow-hidden border border-[color-mix(in_oklab,var(--line)_62%,transparent)] bg-[color-mix(in_oklab,var(--bg)_34%,transparent)] shadow-2xl shadow-[color-mix(in_oklab,var(--bg)_72%,transparent)] min-[1180px]:max-w-none min-[1180px]:self-auto">
++              <div className={cn('contents min-[1180px]:flex min-[1180px]:min-w-0 min-[1180px]:flex-col min-[1180px]:justify-start min-[1180px]:gap-5', styles.coverColumn)}>
++                <div className={cn('relative order-1 aspect-square w-full max-w-[460px] self-center overflow-hidden border border-[color-mix(in_oklab,var(--line)_62%,transparent)] bg-[color-mix(in_oklab,var(--bg)_34%,transparent)] shadow-2xl shadow-[color-mix(in_oklab,var(--bg)_72%,transparent)] min-[1180px]:max-w-none min-[1180px]:self-auto', styles.coverArt)}>
                    {coverSrc && !offline ? (
-@@ -463,7 +463,7 @@ export default function PrismSkin(_props: SkinProps) {
+                     <img src={coverSrc} alt={nowPlaying?.album || nowPlaying?.title || ''} className="h-full w-full object-cover" />
+                   ) : (
+@@ -461,7 +463,7 @@ export default function PrismSkin(_props: SkinProps) {
                  <div className="order-3 min-[1180px]:hidden" />
                </div>
- 
+
 -              <div className="order-2 flex min-w-0 flex-col justify-start gap-4 py-2 min-[1180px]:order-none min-[1180px]:h-full min-[1180px]:py-0">
 +              <div className={cn('order-2 flex min-w-0 flex-col justify-start gap-4 py-2 min-[1180px]:order-none min-[1180px]:h-full min-[1180px]:py-0', styles.contentStack)}>
                  <div className="min-w-0">
                    <span className="bg-[var(--accent)] px-2 py-1 font-mono text-[10px] font-black text-bg uppercase">
                      {nowPlayingLabel}
-@@ -481,24 +481,24 @@ export default function PrismSkin(_props: SkinProps) {
+@@ -479,24 +481,24 @@ export default function PrismSkin(_props: SkinProps) {
                      )}
                    </h1>
                    {artist && (
@@ -355,9 +440,63 @@ index a2e81ad..04a96a0 100644
                      </div>
                    )}
                  </div>
- 
+
 -                <div className="min-h-[72px]">
 +                <div className={styles.boothCardWrap}>
                    <div className="border-l-2 border-[var(--accent)] bg-[color-mix(in_oklab,var(--bg)_30%,transparent)] px-3 py-2.5 backdrop-blur-md">
                      <div className="mb-1 flex items-center justify-between gap-2">
                        <Label>From the booth</Label>
+@@ -641,33 +658,29 @@ export default function PrismSkin(_props: SkinProps) {
+                 </div>
+               </div>
+
+-              <div className={styles.signalFloor} aria-hidden="true">
++              <div className={styles.signalFloor}>
+                 <div className={styles.footerWave}>
+                   <PrismWaveform audioRef={audioRef} active={playing} />
+                 </div>
+-                <div>
+-                  <Label>Weather</Label>
+-                  {weatherLine ? (
+-                    <p>{weatherLine}</p>
+-                  ) : (
+-                    <div className={styles.weatherReport}>
+-                      <p>{weatherSummary || 'No report'}</p>
+-                      {weatherLocation && <span>{weatherLocation}</span>}
+-                    </div>
+-                  )}
+-                </div>
+-                <div>
+-                  <Label>Station time</Label>
+-                  <p suppressHydrationWarning>{stationTime}</p>
+-                </div>
+-                <div>
+-                  <Label>Program</Label>
+-                  <p>{showLine}</p>
+-                  {showTiming?.until && <span className={styles.footerDetail}>{showTiming.until}</span>}
+-                </div>
+-                <div>
+-                  <Label>Up next</Label>
+-                  <p>{showTiming?.next || 'Checking schedule'}</p>
++                <div className={styles.footerPanel}>
++                  <div className={styles.footerMeta}>
++                    <Label>Station</Label>
++                    <p>{weatherLine || stationName}</p>
++                    <span className={styles.footerDetail}>
++                      {weatherSummary || weatherLocation || statusLine}
++                    </span>
++                  </div>
++                  <div className={styles.footerLyrics}>
++                    <Label>Lyrics</Label>
++                    <p>{voice?.text || nowPlaying?.title || 'Lyrics will land here'}</p>
++                  </div>
++                  <div className={styles.footerMeta}>
++                    <Label>Program</Label>
++                    <p>{showLine}</p>
++                    <span className={styles.footerDetail}>
++                      {showTiming?.until || stationTime}
++                    </span>
++                  </div>
+                 </div>
+               </div>
+             </div>
