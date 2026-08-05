@@ -1,5 +1,5 @@
 diff --git a/web/components/skins/prism/Prism.module.css b/web/components/skins/prism/Prism.module.css
-index d7eec68..5020b5d 100644
+index d7eec68..8c4557b 100644
 --- a/web/components/skins/prism/Prism.module.css
 +++ b/web/components/skins/prism/Prism.module.css
 @@ -61,6 +61,17 @@
@@ -64,7 +64,7 @@ index d7eec68..5020b5d 100644
    place-items: center;
    border: 1px solid color-mix(in oklab, var(--line) 44%, transparent);
    background: color-mix(in oklab, var(--surface) 28%, transparent);
-@@ -412,37 +449,75 @@
+@@ -412,52 +449,80 @@
  }
  
  @media (min-width: 1180px) {
@@ -127,13 +127,14 @@ index d7eec68..5020b5d 100644
      grid-template-columns: minmax(11rem, 1.25fr) minmax(8rem, 0.85fr) minmax(12rem, 1.4fr) minmax(10rem, 1.05fr);
 -    gap: clamp(1.2rem, 3vw, 3rem);
 -    padding-top: 1.05rem;
+-    border-top: 1px solid color-mix(in oklab, var(--line) 26%, transparent);
 +    grid-template-rows: minmax(0, auto) minmax(0, auto);
 +    column-gap: clamp(1.2rem, 3vw, 3rem);
 +    row-gap: clamp(0.22rem, 0.75vh, 0.65rem);
-+    min-height: 0;
-+    max-height: clamp(3.2rem, 9.5vh, 6.8rem);
++    min-height: clamp(6rem, 12vh, 8.75rem);
++    max-height: clamp(6rem, 12vh, 8.75rem);
 +    padding-top: clamp(0.28rem, 0.85vh, 0.85rem);
-     border-top: 1px solid color-mix(in oklab, var(--line) 26%, transparent);
++    border-top: 0;
      color: color-mix(in oklab, var(--accent-2) 62%, transparent);
      opacity: 0.62;
 +    overflow: hidden;
@@ -152,7 +153,22 @@ index d7eec68..5020b5d 100644
      pointer-events: none;
      opacity: 0.22;
      mask-image: linear-gradient(90deg, transparent 0%, black 15%, black 85%, transparent 100%);
-@@ -465,7 +540,7 @@
+   }
+ 
+-  .footerWave::after {
+-    position: absolute;
+-    right: 0;
+-    bottom: 0.15rem;
+-    left: 0;
+-    height: 1px;
+-    content: "";
+-    background: color-mix(in oklab, var(--accent) 22%, transparent);
+-  }
+-
+   .signalFloor div {
+     min-width: 0;
+   }
+@@ -465,7 +530,7 @@
    .signalFloor p {
      margin-top: 0.38rem;
      overflow: hidden;
@@ -161,7 +177,7 @@ index d7eec68..5020b5d 100644
      font-weight: 720;
      line-height: 1.2;
      text-overflow: ellipsis;
-@@ -494,7 +569,7 @@
+@@ -494,7 +559,7 @@
      margin-top: 0.18rem;
      min-width: 0;
      overflow: hidden;
@@ -170,7 +186,7 @@ index d7eec68..5020b5d 100644
      font-weight: 720;
      letter-spacing: 0.1em;
      line-height: 1.1;
-@@ -503,6 +578,123 @@
+@@ -503,6 +568,123 @@
      white-space: nowrap;
      color: color-mix(in oklab, var(--accent-2) 54%, transparent);
    }
