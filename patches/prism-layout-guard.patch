@@ -563,7 +563,7 @@ index a2e81ad..b6b047b 100644
 +    let cancelled = false;
 +    setLyricsPayload(null);
 +    setLyricsFailed(false);
-+    if (!coverId || offline) {
++    if (!coverId || offline || !tunedIn) {
 +      setLyricsLoading(false);
 +      return;
 +    }
@@ -581,7 +581,7 @@ index a2e81ad..b6b047b 100644
 +    return () => {
 +      cancelled = true;
 +    };
-+  }, [client, coverId, offline]);
++  }, [client, coverId, offline, tunedIn]);
 +
 +  useEffect(() => {
 +    if (!lyricsPayload?.synced) return;
@@ -594,6 +594,7 @@ index a2e81ad..b6b047b 100644
 +    () => activeLyricIndex(lyricsPayload, lyricElapsedMs, lyricsOffsetMs),
 +    [lyricsPayload, lyricElapsedMs, lyricsOffsetMs],
 +  );
++  const showLyricsPanel = tunedIn && !offline && Boolean(coverId);
 +
 +  useEffect(() => {
 +    if (activeLyric < 0) return;
@@ -700,9 +701,9 @@ index a2e81ad..b6b047b 100644
 +                  </div>
 +                  <div className={styles.footerLyrics}>
 +                    <div className={styles.lyricsHeader}>
-+                      <Label>Lyrics</Label>
++                      <Label>{showLyricsPanel ? 'Lyrics' : 'Station'}</Label>
 +                      <div className={styles.lyricsTools}>
-+                        {lyricsPayload?.synced && (
++                        {showLyricsPanel && lyricsPayload?.synced && (
 +                          <button
 +                            type="button"
 +                            onClick={() => setLyricsOffsetOpen(value => !value)}
@@ -715,7 +716,7 @@ index a2e81ad..b6b047b 100644
 +                            <span>{formatLyricOffset(lyricsOffsetMs)}</span>
 +                          </button>
 +                        )}
-+                        <span>{lyricsPayload?.synced ? 'Synced' : 'Plain'}</span>
++                        <span>{showLyricsPanel ? (lyricsPayload?.synced ? 'Synced' : 'Plain') : 'Idle'}</span>
 +                      </div>
                      </div>
 -                  )}
@@ -733,7 +734,7 @@ index a2e81ad..b6b047b 100644
 -                  <Label>Up next</Label>
 -                  <p>{showTiming?.next || 'Checking schedule'}</p>
 +
-+                    {lyricsPayload?.synced && lyricsOffsetOpen && (
++                    {showLyricsPanel && lyricsPayload?.synced && lyricsOffsetOpen && (
 +                      <div className={styles.lyricsOffset}>
 +                        <button type="button" onClick={() => setLyricOffset(lyricsOffsetMs - 100)} aria-label="Delay lyrics">-</button>
 +                        <input
@@ -751,8 +752,8 @@ index a2e81ad..b6b047b 100644
 +                    )}
 +
 +                    <div className={styles.lyricsScroller}>
-+                      {!coverId || offline ? (
-+                        <p>Lyrics are available for library tracks once the station has indexed them.</p>
++                      {!showLyricsPanel ? (
++                        <p>Tune in to show synced lyrics for the current track.</p>
 +                      ) : lyricsLoading ? (
 +                        <p>Pulling lyrics from the library...</p>
 +                      ) : lyricsFailed ? (
