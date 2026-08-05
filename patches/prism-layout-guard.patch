@@ -472,7 +472,7 @@ index d7eec68..b6609a7 100644
  
  .progress {
 diff --git a/web/components/skins/prism/PrismSkin.tsx b/web/components/skins/prism/PrismSkin.tsx
-index a2e81ad..5ea338f 100644
+index a2e81ad..b6b047b 100644
 --- a/web/components/skins/prism/PrismSkin.tsx
 +++ b/web/components/skins/prism/PrismSkin.tsx
 @@ -5,7 +5,7 @@
@@ -603,7 +603,7 @@ index a2e81ad..5ea338f 100644
    useEffect(() => {
      let cancelled = false;
      (async () => {
-@@ -433,12 +531,12 @@ export default function PrismSkin(_props: SkinProps) {
+@@ -433,24 +531,24 @@ export default function PrismSkin(_props: SkinProps) {
              <img
                src={coverSrc}
                alt=""
@@ -618,9 +618,13 @@ index a2e81ad..5ea338f 100644
              />
            </>
          )}
-@@ -448,9 +546,9 @@ export default function PrismSkin(_props: SkinProps) {
-         <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-4 overflow-y-auto min-[1180px]:grid-cols-[minmax(0,1fr)_minmax(270px,320px)] min-[1180px]:overflow-hidden">
-           <main className={cn('relative overflow-visible border min-[1180px]:min-h-0 min-[1180px]:overflow-hidden', styles.glass)}>
+       </div>
+ 
+       <div className="relative z-10 flex h-full min-h-0 w-full max-w-full flex-col overflow-hidden px-4 py-4 sm:px-6 sm:py-5">
+-        <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-4 overflow-y-auto min-[1180px]:grid-cols-[minmax(0,1fr)_minmax(270px,320px)] min-[1180px]:overflow-hidden">
+-          <main className={cn('relative overflow-visible border min-[1180px]:min-h-0 min-[1180px]:overflow-hidden', styles.glass)}>
++        <div className="grid h-full min-h-0 min-w-0 flex-1 grid-cols-1 gap-4 overflow-y-auto min-[1180px]:grid-cols-[minmax(0,1fr)_minmax(270px,320px)] min-[1180px]:overflow-hidden">
++          <main className={cn('relative h-full overflow-visible border min-[1180px]:min-h-0 min-[1180px]:overflow-hidden', styles.glass)}>
              <div className={cn('pointer-events-none absolute inset-0', styles.stageScrim)} aria-hidden="true" />
 -            <div className="relative z-10 grid min-w-0 grid-cols-1 gap-6 p-4 min-[1180px]:h-full min-[1180px]:min-h-0 min-[1180px]:grid-cols-[minmax(300px,43vh)_minmax(0,1fr)] min-[1180px]:p-6 xl:grid-cols-[minmax(360px,52vh)_minmax(0,1fr)]">
 -              <div className="contents min-[1180px]:flex min-[1180px]:min-w-0 min-[1180px]:flex-col min-[1180px]:justify-start min-[1180px]:gap-5">
@@ -669,7 +673,7 @@ index a2e81ad..5ea338f 100644
                    <div className="border-l-2 border-[var(--accent)] bg-[color-mix(in_oklab,var(--bg)_30%,transparent)] px-3 py-2.5 backdrop-blur-md">
                      <div className="mb-1 flex items-center justify-between gap-2">
                        <Label>From the booth</Label>
-@@ -658,33 +756,92 @@ export default function PrismSkin(_props: SkinProps) {
+@@ -658,39 +756,98 @@ export default function PrismSkin(_props: SkinProps) {
                  </div>
                </div>
  
@@ -785,3 +789,10 @@ index a2e81ad..5ea338f 100644
                  </div>
                </div>
              </div>
+           </main>
+ 
+-          <aside className={cn('grid min-h-0 min-w-0 gap-3 min-[1180px]:grid-rows-[118px_minmax(0,1fr)_190px]', styles.sideRail)}>
++          <aside className={cn('grid h-full min-h-0 min-w-0 gap-3 min-[1180px]:grid-rows-[118px_minmax(0,1fr)_190px]', styles.sideRail)}>
+             <Panel title="Up next" className="h-[118px]">
+               <div className="min-h-0 px-3 py-1">
+                 {upNext.length > 0 ? (
