@@ -8,9 +8,9 @@ index d7eec68..b6609a7 100644
  
 +.stageGrid {
 +  --prism-ui-scale: 1;
-+  --prism-cover-size: clamp(16rem, 40vh, 30rem);
++  --prism-cover-size: clamp(16rem, 42vh, 30rem);
 +  --prism-panel-gap: clamp(0.65rem, 1.45vh, 1rem);
-+  --prism-footer-height: clamp(14rem, 29vh, 20rem);
++  --prism-footer-height: clamp(13rem, 30vh, 19rem);
 +  min-height: 0;
 +}
 +
@@ -81,8 +81,8 @@ index d7eec68..b6609a7 100644
  
  @media (min-width: 1180px) {
 +  .stageGrid {
-+    --prism-cover-size: clamp(15rem, 40vh, 30rem);
-+    --prism-footer-height: clamp(13.5rem, 29vh, 19rem);
++    --prism-cover-size: clamp(15rem, 42vh, 30rem);
++    --prism-footer-height: clamp(13rem, 30vh, 19rem);
 +    grid-template-columns: minmax(15rem, var(--prism-cover-size)) minmax(0, 1fr) !important;
 +    grid-template-rows: minmax(0, calc(100% - var(--prism-footer-height))) var(--prism-footer-height);
 +    align-items: center;
@@ -105,6 +105,7 @@ index d7eec68..b6609a7 100644
 +  .contentStack {
 +    align-self: center;
 +    gap: var(--prism-panel-gap);
++    justify-content: center;
 +    overflow: visible;
 +  }
 +
@@ -370,9 +371,9 @@ index d7eec68..b6609a7 100644
 +
 +@media (min-width: 1180px) and (max-height: 820px) {
 +  .stageGrid {
-+    --prism-cover-size: clamp(12rem, 35vh, 22rem);
++    --prism-cover-size: clamp(12rem, 36vh, 22rem);
 +    --prism-panel-gap: 0.62rem;
-+    --prism-footer-height: clamp(11.5rem, 28vh, 15rem);
++    --prism-footer-height: clamp(11rem, 29vh, 15rem);
 +    grid-template-rows: minmax(0, calc(100% - var(--prism-footer-height))) var(--prism-footer-height);
 +  }
 +
@@ -405,9 +406,9 @@ index d7eec68..b6609a7 100644
 +
 +@media (min-width: 1180px) and (max-height: 720px) {
 +  .stageGrid {
-+    --prism-cover-size: clamp(9.5rem, 29vh, 16rem);
++    --prism-cover-size: clamp(9.5rem, 30vh, 16rem);
 +    --prism-panel-gap: 0.48rem;
-+    --prism-footer-height: clamp(9rem, 27vh, 11.5rem);
++    --prism-footer-height: clamp(9rem, 28vh, 11.5rem);
 +    grid-template-rows: minmax(0, calc(100% - var(--prism-footer-height))) var(--prism-footer-height);
 +  }
 +
@@ -488,7 +489,7 @@ index a2e81ad..b6b047b 100644
    );
  }
  
-+const LYRICS_OFFSET_KEY = 'subwave:lyrics-offset-ms';
++const LYRICS_OFFSET_KEY_PREFIX = 'subwave:lyrics-offset-ms:';
 +
 +interface LyricLine {
 +  text: string;
@@ -498,6 +499,7 @@ index a2e81ad..b6b047b 100644
 +interface CurrentLyricsPayload {
 +  songId?: string | null;
 +  synced?: boolean;
++  offsetMs?: number | null;
 +  lines: LyricLine[];
 +}
 +
@@ -508,6 +510,10 @@ index a2e81ad..b6b047b 100644
 +function formatLyricOffset(value: number): string {
 +  if (value === 0) return '0.00s';
 +  return `${value > 0 ? '+' : '-'}${(Math.abs(value) / 1000).toFixed(2)}s`;
++}
++
++function lyricStorageKey(trackKey: string | null): string | null {
++  return trackKey ? `${LYRICS_OFFSET_KEY_PREFIX}${trackKey}` : null;
 +}
 +
 +function activeLyricIndex(payload: CurrentLyricsPayload | null, elapsedMs: number, offsetMs: number): number {
@@ -537,6 +543,7 @@ index a2e81ad..b6b047b 100644
 +  const [lyricsOffsetMs, setLyricsOffsetMs] = useState(0);
 +  const [lyricsOffsetOpen, setLyricsOffsetOpen] = useState(false);
 +  const activeLyricRef = useRef<HTMLDivElement | null>(null);
++  const lyricsScrollerRef = useRef<HTMLDivElement | null>(null);
    const like = useTrackLike();
    const adjustVolume = useVolumeNudge();
    const volumePercent = Math.round(volume * 100);
@@ -544,18 +551,21 @@ index a2e81ad..b6b047b 100644
      return () => window.clearInterval(id);
    }, []);
  
-+  useEffect(() => {
-+    try {
-+      const stored = window.localStorage.getItem(LYRICS_OFFSET_KEY);
-+      if (stored != null) setLyricsOffsetMs(clampLyricOffset(Number(stored)));
-+    } catch {}
-+  }, []);
++  const lyricsTrackKey = useMemo(() => {
++    if (lyricsPayload?.songId) return lyricsPayload.songId;
++    if (coverId) return coverId;
++    if (nowPlaying?.title || nowPlaying?.artist) {
++      return [nowPlaying?.title, nowPlaying?.artist, nowPlaying?.album].filter(Boolean).join('::');
++    }
++    return null;
++  }, [coverId, lyricsPayload?.songId, nowPlaying?.album, nowPlaying?.artist, nowPlaying?.title]);
 +
 +  const setLyricOffset = (next: number) => {
 +    const clamped = clampLyricOffset(next);
 +    setLyricsOffsetMs(clamped);
 +    try {
-+      window.localStorage.setItem(LYRICS_OFFSET_KEY, String(clamped));
++      const key = lyricStorageKey(lyricsTrackKey);
++      if (key) window.localStorage.setItem(key, String(clamped));
 +    } catch {}
 +  };
 +
@@ -584,10 +594,23 @@ index a2e81ad..b6b047b 100644
 +  }, [client, coverId, offline, tunedIn]);
 +
 +  useEffect(() => {
++    setLyricsNow(Date.now());
++    setLyricsOffsetOpen(false);
++    lyricsScrollerRef.current?.scrollTo({ top: 0 });
++    const key = lyricStorageKey(lyricsTrackKey);
++    try {
++      const stored = key ? window.localStorage.getItem(key) : null;
++      setLyricsOffsetMs(clampLyricOffset(stored != null ? Number(stored) : lyricsPayload?.offsetMs ?? 0));
++    } catch {
++      setLyricsOffsetMs(clampLyricOffset(lyricsPayload?.offsetMs ?? 0));
++    }
++  }, [lyricsPayload?.offsetMs, lyricsTrackKey, trackStartedAt]);
++
++  useEffect(() => {
 +    if (!lyricsPayload?.synced) return;
 +    const id = window.setInterval(() => setLyricsNow(Date.now()), 500);
 +    return () => window.clearInterval(id);
-+  }, [lyricsPayload?.synced, trackStartedAt]);
++  }, [lyricsPayload?.synced, trackStartedAt, lyricsTrackKey]);
 +
 +  const lyricElapsedMs = trackStartedAt == null ? 0 : Math.max(0, lyricsNow - trackStartedAt);
 +  const activeLyric = useMemo(
@@ -701,7 +724,7 @@ index a2e81ad..b6b047b 100644
 +                  </div>
 +                  <div className={styles.footerLyrics}>
 +                    <div className={styles.lyricsHeader}>
-+                      <Label>{showLyricsPanel ? 'Lyrics' : 'Station'}</Label>
++                      <Label>Lyrics</Label>
 +                      <div className={styles.lyricsTools}>
 +                        {showLyricsPanel && lyricsPayload?.synced && (
 +                          <button
@@ -716,7 +739,7 @@ index a2e81ad..b6b047b 100644
 +                            <span>{formatLyricOffset(lyricsOffsetMs)}</span>
 +                          </button>
 +                        )}
-+                        <span>{showLyricsPanel ? (lyricsPayload?.synced ? 'Synced' : 'Plain') : 'Idle'}</span>
++                        {showLyricsPanel && <span>{lyricsPayload?.synced ? 'Synced' : 'Plain'}</span>}
 +                      </div>
                      </div>
 -                  )}
@@ -751,7 +774,7 @@ index a2e81ad..b6b047b 100644
 +                      </div>
 +                    )}
 +
-+                    <div className={styles.lyricsScroller}>
++                    <div ref={lyricsScrollerRef} className={styles.lyricsScroller}>
 +                      {!showLyricsPanel ? (
 +                        <p>Tune in to show synced lyrics for the current track.</p>
 +                      ) : lyricsLoading ? (
