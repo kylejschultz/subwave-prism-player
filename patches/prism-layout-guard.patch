@@ -186,7 +186,7 @@ index d7eec68..b6609a7 100644
 +  .footerPanel {
 +    display: grid;
 +    min-height: 0;
-+    grid-template-columns: minmax(11rem, 0.85fr) minmax(22rem, 1.8fr) minmax(11rem, 0.85fr);
++    grid-template-columns: minmax(13rem, 0.72fr) minmax(24rem, 2.28fr);
 +    grid-template-rows: 1fr;
 +    gap: clamp(0.95rem, 2vw, 1.8rem);
 +    align-items: stretch;
@@ -203,6 +203,13 @@ index d7eec68..b6609a7 100644
      min-width: 0;
 +    overflow: hidden;
    }
++
++  .footerMeta {
++    display: grid;
++    min-height: 0;
++    align-content: center;
++    gap: clamp(0.7rem, 1.4vh, 1rem);
++  }
  
    .signalFloor p {
      margin-top: 0.38rem;
@@ -299,7 +306,7 @@ index d7eec68..b6609a7 100644
 +    min-height: 0;
 +    flex: 1;
 +    overflow-y: auto;
-+    padding: 0.35rem 0.35rem 0.2rem 0;
++    padding: clamp(1.8rem, 6vh, 3rem) 0.35rem clamp(1.8rem, 6vh, 3rem) 0;
 +    scrollbar-width: thin;
 +    scrollbar-color: color-mix(in oklab, var(--accent) 62%, transparent) transparent;
 +  }
@@ -321,7 +328,9 @@ index d7eec68..b6609a7 100644
 +  .lyricLine {
 +    border-left: 1px solid color-mix(in oklab, var(--line) 34%, transparent);
 +    padding: 0.34rem 0.6rem;
-+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
++    color: color-mix(in oklab, var(--ink) 52%, transparent);
++    opacity: 0.58;
++    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, opacity 160ms ease;
    }
  
 -  .footerDetail,
@@ -330,14 +339,12 @@ index d7eec68..b6609a7 100644
 +    border-color: var(--accent);
 +    background: color-mix(in oklab, var(--accent) 10%, transparent);
 +    color: var(--ink);
++    opacity: 1;
 +  }
 +
 +  .plainLyricLine {
 +    color: color-mix(in oklab, var(--ink) 82%, var(--accent) 18%);
-+  }
-+
-+  .footerMeta:last-child {
-+    text-align: right;
++    opacity: 0.82;
 +  }
 +
 +  .footerDetail {
@@ -435,7 +442,7 @@ index d7eec68..b6609a7 100644
 +  }
 +
 +  .footerPanel {
-+    grid-template-columns: minmax(7rem, 0.9fr) minmax(12rem, 1.45fr) minmax(7rem, 0.9fr);
++    grid-template-columns: minmax(8rem, 0.78fr) minmax(13rem, 2.22fr);
 +    gap: 0.45rem;
 +    padding: 0.5rem 0.65rem;
 +  }
@@ -720,11 +727,20 @@ index a2e81ad..b6b047b 100644
 -                      {weatherLocation && <span>{weatherLocation}</span>}
 +                <div className={styles.footerPanel}>
 +                  <div className={styles.footerMeta}>
-+                    <Label>Station</Label>
-+                    <p>{weatherLine || stationName}</p>
-+                    <span className={styles.footerDetail}>
-+                      {weatherSummary || weatherLocation || statusLine}
-+                    </span>
++                    <div>
++                      <Label>Station</Label>
++                      <p>{weatherLine || stationName}</p>
++                      <span className={styles.footerDetail}>
++                        {weatherSummary || weatherLocation || statusLine}
++                      </span>
++                    </div>
++                    <div>
++                      <Label>Program</Label>
++                      <p>{showLine}</p>
++                      <span className={styles.footerDetail}>
++                        {showTiming?.until || stationTime}
++                      </span>
++                    </div>
 +                  </div>
 +                  <div className={styles.footerLyrics}>
 +                    <div className={styles.lyricsHeader}>
@@ -805,13 +821,6 @@ index a2e81ad..b6b047b 100644
 +                        })
 +                      )}
 +                    </div>
-+                  </div>
-+                  <div className={styles.footerMeta}>
-+                    <Label>Program</Label>
-+                    <p>{showLine}</p>
-+                    <span className={styles.footerDetail}>
-+                      {showTiming?.until || stationTime}
-+                    </span>
 +                  </div>
                  </div>
                </div>
