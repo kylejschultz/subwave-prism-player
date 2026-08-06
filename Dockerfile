@@ -13,41 +13,43 @@ RUN apt-get update \
 
 ARG SUBWAVE_REPO=https://github.com/perminder-klair/subwave.git
 ARG SUBWAVE_REF=90db93086945eacd07d9a2b5fe607c41a5ec2fe6
-ARG SUBWAVE_SKINS_REPO=https://github.com/kylejschultz/subwave-skins.git
-ARG SUBWAVE_SKINS_REF=main
-ARG APPLY_SUBWAVE_SKINS_PATCHES=1
-ARG APPLY_PRISM_DEFAULT_PATCH=1
+ARG APPLY_PLAYER_PREVIEW_SUPPORT_PATCH=1
+ARG APPLY_LYRICS_CLIENT_SUPPORT_PATCH=1
+ARG APPLY_GATEFOLD_SKIN_REGISTRY_PATCH=1
+ARG APPLY_GATEFOLD_DEFAULT_PATCH=1
 ARG APPLY_PLAYER_ONLY_PATCH=1
-ARG APPLY_PRISM_ONLY_PATCH=1
+ARG APPLY_SIGNAL_ONLY_PATCH=1
 ARG APPLY_STANDALONE_STATION_SETUP_PATCH=1
-ARG APPLY_PRISM_APP_BRANDING_PATCH=1
+ARG APPLY_SIGNAL_APP_BRANDING_PATCH=1
 ARG APPLY_STANDALONE_STATION_CONTROLS_PATCH=1
-ARG APPLY_PRISM_LAYOUT_GUARD_PATCH=1
 
 WORKDIR /src
 COPY patches/ /patches/
+COPY skins/ /skins/
 RUN git clone --filter=blob:none "${SUBWAVE_REPO}" subwave \
   && cd subwave \
   && git checkout "${SUBWAVE_REF}" \
-  && if [ "${APPLY_SUBWAVE_SKINS_PATCHES}" = "1" ]; then \
-       git clone --filter=blob:none "${SUBWAVE_SKINS_REPO}" /src/subwave-skins; \
-       cd /src/subwave-skins; \
-       git checkout "${SUBWAVE_SKINS_REF}"; \
-       cd /src/subwave; \
-       for patch in /src/subwave-skins/patches/*.patch; do git apply "${patch}"; done; \
-       rm -rf web/components/skins/prism; \
-       mkdir -p web/components/skins; \
-       cp -R /src/subwave-skins/skins/prism web/components/skins/prism; \
+  && if [ "${APPLY_PLAYER_PREVIEW_SUPPORT_PATCH}" = "1" ]; then \
+       git apply /patches/player-preview-support.patch; \
      fi \
-  && if [ "${APPLY_PRISM_DEFAULT_PATCH}" = "1" ]; then \
-       git apply /patches/prism-default.patch; \
-       test -d web/components/skins/prism; \
+  && if [ "${APPLY_LYRICS_CLIENT_SUPPORT_PATCH}" = "1" ]; then \
+       git apply --recount /patches/lyrics-client-support.patch; \
+     fi \
+  && if [ "${APPLY_GATEFOLD_SKIN_REGISTRY_PATCH}" = "1" ]; then \
+       git apply /patches/gatefold-skin-registry.patch; \
+       rm -rf web/components/skins/gatefold; \
+       mkdir -p web/components/skins; \
+       cp -R /skins/gatefold web/components/skins/gatefold; \
+     fi \
+  && if [ "${APPLY_GATEFOLD_DEFAULT_PATCH}" = "1" ]; then \
+       git apply /patches/gatefold-default.patch; \
+       test -d web/components/skins/gatefold; \
      fi \
   && if [ "${APPLY_PLAYER_ONLY_PATCH}" = "1" ]; then \
        git apply /patches/player-only.patch; \
      fi \
-  && if [ "${APPLY_PRISM_ONLY_PATCH}" = "1" ]; then \
-       git apply /patches/prism-only.patch; \
+  && if [ "${APPLY_SIGNAL_ONLY_PATCH}" = "1" ]; then \
+       git apply /patches/signal-only.patch; \
      fi \
   && if [ "${APPLY_STANDALONE_STATION_SETUP_PATCH}" = "1" ]; then \
        git apply --recount /patches/standalone-station-setup.patch; \
@@ -55,11 +57,8 @@ RUN git clone --filter=blob:none "${SUBWAVE_REPO}" subwave \
   && if [ "${APPLY_STANDALONE_STATION_CONTROLS_PATCH}" = "1" ]; then \
        git apply --recount /patches/standalone-station-controls.patch; \
      fi \
-  && if [ "${APPLY_PRISM_LAYOUT_GUARD_PATCH}" = "1" ]; then \
-       git apply --recount /patches/prism-layout-guard.patch; \
-     fi \
-  && if [ "${APPLY_PRISM_APP_BRANDING_PATCH}" = "1" ]; then \
-       git apply --recount /patches/prism-app-branding.patch; \
+  && if [ "${APPLY_SIGNAL_APP_BRANDING_PATCH}" = "1" ]; then \
+       git apply --recount /patches/signal-app-branding.patch; \
      fi
 
 FROM ${NODE_IMAGE} AS deps
@@ -76,14 +75,14 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ARG SITE_URL
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_STREAM_URL
-ARG NEXT_PUBLIC_PRISM_THEME_IDS=
+ARG NEXT_PUBLIC_SIGNAL_THEME_IDS=
 ARG NEXT_PUBLIC_SUBWAVE_STATION_SETUP=required
 ARG NEXT_PUBLIC_GA_ID
-ARG SUBWAVE_BUILD_VERSION=prism-player
+ARG SUBWAVE_BUILD_VERSION=signal-subwave-player
 ENV SITE_URL=${SITE_URL}
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_STREAM_URL=${NEXT_PUBLIC_STREAM_URL}
-ENV NEXT_PUBLIC_PRISM_THEME_IDS=${NEXT_PUBLIC_PRISM_THEME_IDS}
+ENV NEXT_PUBLIC_SIGNAL_THEME_IDS=${NEXT_PUBLIC_SIGNAL_THEME_IDS}
 ENV NEXT_PUBLIC_SUBWAVE_STATION_SETUP=${NEXT_PUBLIC_SUBWAVE_STATION_SETUP}
 ENV NEXT_PUBLIC_GA_ID=${NEXT_PUBLIC_GA_ID}
 ENV SUBWAVE_BUILD_VERSION=${SUBWAVE_BUILD_VERSION}

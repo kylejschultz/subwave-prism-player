@@ -14,13 +14,13 @@ diff --git a/web/components/ThemeBootstrap.tsx b/web/components/ThemeBootstrap.t
  
 +const STANDALONE_SETUP =
 +  process.env.NEXT_PUBLIC_SUBWAVE_STATION_SETUP === 'required' ||
-+  process.env.NEXT_PUBLIC_PRISM_STANDALONE === 'true';
++  process.env.NEXT_PUBLIC_SIGNAL_STANDALONE === 'true';
 +const STATION_STORAGE_KEY = 'subwave.stationOverride.v1';
 +const CUSTOM_STATIONS_KEY = 'subwave.customStations.v1';
  interface ThemeContextValue {
    /** Every theme the controller knows about (built-ins + state/themes/*.json). */
    themes: Theme[];
-@@ -51,6 +54,24 @@ function prismThemes(registry: Theme[], stationId: string | null): { themes: The
+@@ -51,6 +54,24 @@ function signalThemes(registry: Theme[], stationId: string | null): { themes: The
    };
  }
  
@@ -51,7 +51,7 @@ diff --git a/web/components/ThemeBootstrap.tsx b/web/components/ThemeBootstrap.t
 -        const j = await defaultStationClient.themes();
 +        const j = await stationThemeClient().themes();
          if (cancelled) return;
-         const visible = prismThemes(j.themes, j.active);
+         const visible = signalThemes(j.themes, j.active);
          setThemes(visible.themes);
 @@ -129,10 +150,12 @@ export default function ThemeBootstrap({ children }: { children?: ReactNode }) {
  
@@ -87,7 +87,7 @@ diff --git a/web/components/player/StationTuner.tsx b/web/components/player/Stat
 +const SETUP_OPEN_KEY = 'subwave.stationSetupOpen.v1';
  const STANDALONE_SETUP =
    process.env.NEXT_PUBLIC_SUBWAVE_STATION_SETUP === 'required' ||
-   process.env.NEXT_PUBLIC_PRISM_STANDALONE === 'true';
+   process.env.NEXT_PUBLIC_SIGNAL_STANDALONE === 'true';
 @@ -37,6 +38,7 @@ interface StationTunerContextValue {
    needsSetup: boolean;
    origin: StationOrigin;
@@ -187,50 +187,3 @@ diff --git a/web/components/player/StationTuner.tsx b/web/components/player/Stat
 +    [active, stations, loading, needsSetup, origin, addCustomStation, openSetup, setStation],
    );
  
-diff --git a/web/components/skins/prism/PrismSkin.tsx b/web/components/skins/prism/PrismSkin.tsx
---- a/web/components/skins/prism/PrismSkin.tsx
-+++ b/web/components/skins/prism/PrismSkin.tsx
-@@ -5,13 +5,14 @@
- 
- import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
- import * as Dialog from '@radix-ui/react-dialog';
--import { Heart, Info, LoaderCircle, Play, Send, Square, Volume2, VolumeX, X } from 'lucide-react';
-+import { Heart, Info, LoaderCircle, Play, RadioTower, Send, Square, Volume2, VolumeX, X } from 'lucide-react';
- import styles from './Prism.module.css';
- import {
-   usePlayerActions,
-   usePlayerAudio,
-   usePlayerFeed,
- } from '@/components/player/PlayerCore';
-+import { useStationTuner } from '@/components/player/StationTuner';
- import { useTuneInGate } from '@/components/player/useTuneInGate';
- import ThemeSwitcher from '@/components/ThemeSwitcher';
-@@ -299,6 +300,7 @@ function PrismWaveform({
- 
- export default function PrismSkin(_props: SkinProps) {
-   const client = useStationClient();
-+  const tuner = useStationTuner();
-   const {
-     nowPlaying, context, dj, activeShow, listeners, state, session,
-@@ -623,6 +625,23 @@ export default function PrismSkin(_props: SkinProps) {
-                             {signal.latencyMs != null && tunedIn && <><span>Latency</span><strong>{signal.latencyMs} ms</strong></>}
-                             {playerUrl && <><span>Player</span><strong className="truncate">{playerUrl}</strong></>}
-                           </div>
-+                          {tuner?.setupRequired && (
-+                            <div className="border-t border-[color-mix(in_oklab,var(--line)_58%,transparent)] p-3">
-+                              <button
-+                                type="button"
-+                                onClick={() => {
-+                                  setInfoOpen(false);
-+                                  tuner.openSetup();
-+                                }}
-+                                className="v3-focus flex h-10 w-full items-center justify-center gap-2 border border-[var(--line)] bg-[color-mix(in_oklab,var(--surface)_42%,transparent)] px-3 font-mono text-[10px] font-extrabold tracking-[0.18em] text-[var(--accent)] uppercase hover:border-[var(--accent)]"
-+                              >
-+                                <RadioTower aria-hidden className="size-4" />
-+                                Change station
-+                              </button>
-+                            </div>
-+                          )}
-                         </Dialog.Content>
-                       </Dialog.Portal>
-                     </Dialog.Root>

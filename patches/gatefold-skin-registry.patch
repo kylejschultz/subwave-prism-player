@@ -1,0 +1,18 @@
+diff --git a/web/components/skins/index.ts b/web/components/skins/index.ts
+--- a/web/components/skins/index.ts
++++ b/web/components/skins/index.ts
+@@ -61,6 +61,14 @@ export const SKINS: SkinManifest[] = [
+     skinApiVersion: SKIN_API_VERSION,
+     load: () => import('./platter/PlatterSkin'),
+   },
++  {
++    id: 'gatefold',
++    name: 'Gatefold',
++    description:
++      'An album-art-first console with cover wash, signal glow and oversized now-playing type.',
++    skinApiVersion: SKIN_API_VERSION,
++    load: () => import('./gatefold/GatefoldSkin'),
++  },
+ ];
+ 
+ // Id facts (default id, legacy aliases) live in lib/skin.ts so the server

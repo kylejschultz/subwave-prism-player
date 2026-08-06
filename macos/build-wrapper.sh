@@ -2,17 +2,17 @@
 set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-app_dir="$repo_dir/dist/Subwave Prism.app"
+app_dir="$repo_dir/dist/Signal for Subwave.app"
 contents_dir="$app_dir/Contents"
 macos_dir="$contents_dir/MacOS"
 resources_dir="$contents_dir/Resources"
-icon_source="$repo_dir/macos/SubwavePrism/AppIcon.png"
+icon_source="$repo_dir/macos/SignalSubwave/AppIcon.png"
 icon_work_dir="$repo_dir/dist/AppIcon.iconset"
 
-rm -rf "$app_dir" "$repo_dir/dist/Subwave-Prism-macOS.zip" "$icon_work_dir"
+rm -rf "$app_dir" "$repo_dir/dist/Signal-Subwave-macOS.zip" "$icon_work_dir"
 mkdir -p "$macos_dir" "$resources_dir"
 
-cp "$repo_dir/macos/SubwavePrism/Info.plist" "$contents_dir/Info.plist"
+cp "$repo_dir/macos/SignalSubwave/Info.plist" "$contents_dir/Info.plist"
 
 mkdir -p "$icon_work_dir"
 sips -z 16 16 "$icon_source" --out "$icon_work_dir/icon_16x16.png" >/dev/null
@@ -25,17 +25,17 @@ sips -z 256 256 "$icon_source" --out "$icon_work_dir/icon_256x256.png" >/dev/nul
 sips -z 512 512 "$icon_source" --out "$icon_work_dir/icon_256x256@2x.png" >/dev/null
 sips -z 512 512 "$icon_source" --out "$icon_work_dir/icon_512x512.png" >/dev/null
 sips -z 1024 1024 "$icon_source" --out "$icon_work_dir/icon_512x512@2x.png" >/dev/null
-iconutil -c icns "$icon_work_dir" -o "$resources_dir/SubwavePrism.icns"
+iconutil -c icns "$icon_work_dir" -o "$resources_dir/SignalSubwave.icns"
 
 swiftc \
   -O \
   -framework Cocoa \
   -framework AVFoundation \
   -framework WebKit \
-  "$repo_dir/macos/SubwavePrism/main.swift" \
-  -o "$macos_dir/Subwave Prism"
+  "$repo_dir/macos/SignalSubwave/main.swift" \
+  -o "$macos_dir/Signal for Subwave"
 
 codesign --force --deep --sign - "$app_dir" >/dev/null
-ditto -c -k --keepParent "$app_dir" "$repo_dir/dist/Subwave-Prism-macOS.zip"
+ditto -c -k --keepParent "$app_dir" "$repo_dir/dist/Signal-Subwave-macOS.zip"
 
-echo "$repo_dir/dist/Subwave-Prism-macOS.zip"
+echo "$repo_dir/dist/Signal-Subwave-macOS.zip"

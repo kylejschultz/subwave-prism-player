@@ -5,15 +5,15 @@
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
   <key>CFBundleExecutable</key>
-  <string>Subwave Prism</string>
+  <string>Signal for Subwave</string>
   <key>CFBundleIdentifier</key>
-  <string>com.kjho.subwave-prism</string>
+  <string>com.kjho.signal-subwave</string>
   <key>CFBundleIconFile</key>
-  <string>SubwavePrism</string>
+  <string>SignalSubwave</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
-  <string>Subwave Prism</string>
+  <string>Signal for Subwave</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>

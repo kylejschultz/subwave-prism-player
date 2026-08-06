@@ -10,8 +10,8 @@ private struct NativeStation: Codable {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigationDelegate, WKScriptMessageHandler {
-    private let startURL = URL(string: "https://prism.gurthyy.xyz/?skin=prism")!
-    private let appUserAgentToken = "SubwavePrism/1.0"
+    private let startURL = URL(string: "https://signal.gurthyy.xyz/?skin=gatefold")!
+    private let appUserAgentToken = "SignalSubwave/1.0"
     private let stationDefaultsKey = "stationURL"
     private let stationListDefaultsKey = "stations"
     private let defaultStationURL = "https://radio.gurthyy.xyz"
@@ -43,7 +43,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
             backing: .buffered,
             defer: false
         )
-        window.title = "Subwave Prism"
+        window.title = "Signal for Subwave"
         window.delegate = self
         window.titlebarAppearsTransparent = false
         window.isMovableByWindowBackground = true
@@ -112,7 +112,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
 
     private func showLoadError(_ error: Error) {
         let alert = NSAlert()
-        alert.messageText = "Subwave Prism could not load."
+        alert.messageText = "Signal for Subwave could not load."
         alert.informativeText = error.localizedDescription
         alert.addButton(withTitle: "Retry")
         alert.addButton(withTitle: "Quit")
@@ -139,7 +139,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
         let appMenu = NSMenu()
         appMenu.addItem(NSMenuItem(title: "Station Settings...", action: #selector(showStationSettings), keyEquivalent: ","))
         appMenu.addItem(NSMenuItem.separator())
-        appMenu.addItem(NSMenuItem(title: "Quit Subwave Prism", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        appMenu.addItem(NSMenuItem(title: "Quit Signal for Subwave", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         appMenuItem.submenu = appMenu
         mainMenu.addItem(appMenuItem)
         NSApp.mainMenu = mainMenu

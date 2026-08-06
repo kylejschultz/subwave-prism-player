@@ -1,0 +1,57 @@
+diff --git a/web/lib/stationClient.ts b/web/lib/stationClient.ts
+--- a/web/lib/stationClient.ts
++++ b/web/lib/stationClient.ts
+@@ -22,6 +22,7 @@ import type {
+   SchedulePayload,
+   SessionPayload,
+   StationState,
++  PublicLyricsPayload,
+ } from '@/lib/types';
+ 
+ /** `/themes` response — the registry plus the station's active id. */
+@@ -81,6 +82,8 @@ export interface StationClient {
+   likeCurrent(songId: string): Promise<LikeResult | null>;
+   /** Liked-state + count for the current airing. null on network error. */
+   likeStatus(): Promise<LikeStatus | null>;
++  /** Structured lyrics for the current library track. null on network error. */
++  currentLyrics(clientId?: string): Promise<PublicLyricsPayload | null>;
+   /** One-shot audience beacon. Best-effort: never throws, never blocks. */
+   beacon(payload: BeaconPayload): void;
+   /** First-run wizard state. null on any failure — callers treat that as
+@@ -147,6 +150,15 @@ export function createStationClient(origin: StationOrigin): StationClient {
+         return null;
+       }
+     },
++    currentLyrics: async (clientId) => {
++      try {
++        const qs = clientId ? `?clientId=${encodeURIComponent(clientId)}` : '';
++        const r = await fetch(`${api}/lyrics/current${qs}`, { cache: 'no-store' });
++        return r.ok ? await json<PublicLyricsPayload>(r) : null;
++      } catch {
++        return null;
++      }
++    },
+     beacon: payload => {
+       fetch(`${api}/beacon`, {
+         method: 'POST',
+diff --git a/web/lib/types.ts b/web/lib/types.ts
+--- a/web/lib/types.ts
++++ b/web/lib/types.ts
+@@ -112,5 +112,17 @@ export interface QueueEntry {
+   [key: string]: unknown;
+ }
+ 
++export interface PublicLyricLine {
++  startMs: number | null;
++  text: string;
++}
++
++export interface PublicLyricsPayload {
++  songId: string | null;
++  synced: boolean;
++  offsetMs?: number;
++  lines: PublicLyricLine[];
++}
++
+ /** Status returned by `/request/:id`. */
+ export type RequestStatus = 'pending' | 'resolved' | 'failed' | 'unknown';

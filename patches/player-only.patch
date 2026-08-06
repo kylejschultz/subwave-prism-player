@@ -7,10 +7,10 @@ new file mode 100644
 +
 +const blockedPrefixes = ['/admin', '/setup'];
 +
-+function prismHome(request: NextRequest): URL {
++function gatefoldHome(request: NextRequest): URL {
 +  const url = request.nextUrl.clone();
 +  url.pathname = '/';
-+  url.searchParams.set('skin', 'prism');
++  url.searchParams.set('skin', 'gatefold');
 +  return url;
 +}
 +
@@ -18,11 +18,11 @@ new file mode 100644
 +  const { pathname, searchParams } = request.nextUrl;
 +
 +  if (blockedPrefixes.some(prefix => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
-+    return NextResponse.redirect(prismHome(request));
++    return NextResponse.redirect(gatefoldHome(request));
 +  }
 +
-+  if (pathname === '/' && searchParams.get('skin') !== 'prism') {
-+    return NextResponse.redirect(prismHome(request));
++  if (pathname === '/' && searchParams.get('skin') !== 'gatefold') {
++    return NextResponse.redirect(gatefoldHome(request));
 +  }
 +
 +  return NextResponse.next();

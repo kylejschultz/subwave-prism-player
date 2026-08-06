@@ -1,12 +1,12 @@
 # Merge into:
 # /boot/config/plugins/compose.manager/projects/mediaStack/docker-compose.override.yml
 #
-# Apply after ghcr.io/kylejschultz/subwave-prism-player has been published.
+# Apply after ghcr.io/kylejschultz/signal-subwave-player has been published.
 
 services:
-  subwave-prism-player:
+  signal-subwave-player:
     labels:
       net.unraid.docker.managed: 'composeman'
       net.unraid.docker.icon: ''
-      net.unraid.docker.webui: 'prism.gurthyy.xyz'
+      net.unraid.docker.webui: 'signal.gurthyy.xyz'
       net.unraid.docker.shell: ''
