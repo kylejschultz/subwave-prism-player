@@ -332,6 +332,7 @@ export default function GatefoldSkin(_props: SkinProps) {
     .slice(-5)
     .reverse();
   const upNext = (state.upcoming ?? []).slice(0, 1);
+  const playHistory = (state.history ?? []).slice(0, 6);
   const showLine = showName ? `${showName} with ${djName}` : `with ${djName}`;
   const listenerLine = listenerCount == null
     ? null
@@ -865,7 +866,7 @@ export default function GatefoldSkin(_props: SkinProps) {
             </div>
           </main>
 
-          <aside className={cn('grid min-h-0 min-w-0 gap-3 min-[1180px]:grid-rows-[118px_minmax(0,1fr)]', styles.sideRail)}>
+          <aside className={cn('grid min-h-0 min-w-0 gap-3 min-[1180px]:grid-rows-[118px_minmax(0,1fr)_190px]', styles.sideRail)}>
             <Panel title="Up next" className="h-[118px]">
               <div className="min-h-0 px-3 py-1">
                 {upNext.length > 0 ? (
@@ -874,6 +875,18 @@ export default function GatefoldSkin(_props: SkinProps) {
                   <p className="py-7 text-center text-sm text-muted">Nothing queued yet.</p>
                 )}
               </div>
+            </Panel>
+
+            <Panel title="Play history">
+              <ScrollArea className="min-h-0 flex-1">
+                <div className="px-3 py-1">
+                  {playHistory.length > 0 ? (
+                    <ul>{playHistory.map((e, i) => <QueueRow key={rowKey(e, 'history', i)} entry={e} muted />)}</ul>
+                  ) : (
+                    <p className="py-8 text-center text-sm text-muted">Nothing played yet.</p>
+                  )}
+                </div>
+              </ScrollArea>
             </Panel>
 
             <Panel title="Booth feed" className="h-[190px]">

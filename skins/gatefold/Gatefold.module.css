@@ -821,7 +821,7 @@
   .sideRail {
     height: 100%;
     max-height: 100%;
-    grid-template-rows: minmax(4.9rem, auto) minmax(0, 1fr) !important;
+    grid-template-rows: minmax(4.9rem, auto) minmax(0, 1fr) minmax(5.4rem, 0.72fr) !important;
     overflow: hidden;
   }
 
@@ -913,7 +913,7 @@
 
   .sideRail {
     gap: 0.45rem;
-    grid-template-rows: minmax(3.9rem, auto) minmax(0, 1fr) !important;
+    grid-template-rows: minmax(3.9rem, auto) minmax(0, 1fr) minmax(4.2rem, 0.65fr) !important;
   }
 
   .sideRow {
