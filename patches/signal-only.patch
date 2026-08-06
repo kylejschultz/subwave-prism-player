@@ -6,14 +6,14 @@ index 7beed33..a5c9d6c 100644
  }
  
  const ThemeContext = createContext<ThemeContextValue | null>(null);
-+const PRISM_THEME_IDS = (process.env.NEXT_PUBLIC_PRISM_THEME_IDS || '')
++const SIGNAL_THEME_IDS = (process.env.NEXT_PUBLIC_SIGNAL_THEME_IDS || '')
 +  .split(',')
 +  .map(id => id.trim())
 +  .filter(Boolean);
 +
-+function prismThemes(registry: Theme[], stationId: string | null): { themes: Theme[]; active: string | null } {
-+  if (PRISM_THEME_IDS.length === 0) return { themes: registry, active: stationId };
-+  const allowed = new Set(PRISM_THEME_IDS);
++function signalThemes(registry: Theme[], stationId: string | null): { themes: Theme[]; active: string | null } {
++  if (SIGNAL_THEME_IDS.length === 0) return { themes: registry, active: stationId };
++  const allowed = new Set(SIGNAL_THEME_IDS);
 +  const themes = registry.filter(theme => allowed.has(theme.id));
 +  const fallback = themes[0]?.id ?? stationId;
 +  return {
@@ -31,7 +31,7 @@ index 7beed33..a5c9d6c 100644
 -        setThemes(j.themes);
 -        setStationActiveId(j.active);
 -        applyEffective(j.themes, j.active, overrideRef.current);
-+        const visible = prismThemes(j.themes, j.active);
++        const visible = signalThemes(j.themes, j.active);
 +        setThemes(visible.themes);
 +        setStationActiveId(visible.active);
 +        applyEffective(visible.themes, visible.active, overrideRef.current);
@@ -95,12 +95,12 @@ index 2613859..0b92a5b 100644
 -    load: () => import('./platter/PlatterSkin'),
 -  },
    {
-     id: 'prism',
-     name: 'Prism',
+     id: 'gatefold',
+     name: 'Gatefold',
 @@ -106,5 +58,5 @@ export const SKIN_COMPONENTS: Record<string, SkinComponent> = Object.fromEntries
   *  a string-keyed record, so TS can't prove a hit). Points at the same module
   *  as the classic entry — the bundler dedupes the chunk. */
  export const DEFAULT_SKIN_COMPONENT: SkinComponent = dynamic(
 -  () => import('./classic/ClassicSkin'),
-+  () => import('./prism/PrismSkin'),
++  () => import('./gatefold/GatefoldSkin'),
  ) as SkinComponent;

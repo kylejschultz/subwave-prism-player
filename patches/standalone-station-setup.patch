@@ -106,7 +106,7 @@ new file mode 100644
 +            <div>
 +              <div className="v3-eyebrow mb-2 flex items-center gap-2">
 +                <RadioTower size={15} strokeWidth={1.8} />
-+                Prism for Subwave
++                Signal for Subwave
 +              </div>
 +              <h1 className="font-display text-[32px] leading-none sm:text-[42px]">
 +                Choose station
@@ -188,7 +188,7 @@ diff --git a/web/components/player/StationTuner.tsx b/web/components/player/Stat
  const CUSTOM_STATIONS_KEY = 'subwave.customStations.v1';
 +const STANDALONE_SETUP =
 +  process.env.NEXT_PUBLIC_SUBWAVE_STATION_SETUP === 'required' ||
-+  process.env.NEXT_PUBLIC_PRISM_STANDALONE === 'true';
++  process.env.NEXT_PUBLIC_SIGNAL_STANDALONE === 'true';
  
  export interface TunerStation {
    slug: string;

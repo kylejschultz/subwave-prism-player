@@ -6,12 +6,12 @@ diff --git a/web/app/layout.tsx b/web/app/layout.tsx
  
  const DESCRIPTION =
 -  'A real internet radio station. Single Icecast stream — every listener hears the same broadcast at the same time, picked and announced by an LLM-driven DJ.';
-+  'A standalone Prism player for Subwave radio stations.';
++  'A standalone Signal player for Subwave radio stations.';
  
 -const SOCIAL_TITLE = 'SUB/WAVE — A real internet radio station';
 -const OG_IMAGE_ALT = 'SUB/WAVE — a real internet radio station';
-+const SOCIAL_TITLE = 'Prism for Subwave';
-+const OG_IMAGE_ALT = 'Prism for Subwave player';
++const SOCIAL_TITLE = 'Signal for Subwave';
++const OG_IMAGE_ALT = 'Signal for Subwave player';
  
  // Site-wide structured data. WebSite + Organization give search engines the
  // canonical name/logo to attach to rich results across every page.
@@ -19,7 +19,7 @@ diff --git a/web/app/layout.tsx b/web/app/layout.tsx
      '@context': 'https://schema.org',
      '@type': 'WebSite',
 -    name: 'SUB/WAVE',
-+    name: 'Prism for Subwave',
++    name: 'Signal for Subwave',
      url: SITE_URL,
      description: DESCRIPTION,
    },
@@ -27,7 +27,7 @@ diff --git a/web/app/layout.tsx b/web/app/layout.tsx
      '@context': 'https://schema.org',
      '@type': 'Organization',
 -    name: 'SUB/WAVE',
-+    name: 'Prism for Subwave',
++    name: 'Signal for Subwave',
      url: SITE_URL,
      logo: `${SITE_URL}/icons/512`,
    },
@@ -35,16 +35,16 @@ diff --git a/web/app/layout.tsx b/web/app/layout.tsx
  export const metadata: Metadata = {
    metadataBase: new URL(SITE_URL),
 -  title: { default: 'SUB/WAVE', template: '%s · SUB/WAVE' },
-+  title: { default: 'Prism for Subwave', template: '%s · Prism' },
++  title: { default: 'Signal for Subwave', template: '%s · Signal' },
    description: DESCRIPTION,
 -  applicationName: 'SUB/WAVE',
-+  applicationName: 'Prism for Subwave',
++  applicationName: 'Signal for Subwave',
    // iOS standalone-install + status bar styling. Android picks these up via
    // manifest.js; iOS still needs the `apple-mobile-web-app-*` metas.
    appleWebApp: {
      capable: true,
 -    title: 'SUB/WAVE',
-+    title: 'Prism',
++    title: 'Signal',
      statusBarStyle: 'black-translucent',
    },
 diff --git a/web/app/manifest.ts b/web/app/manifest.ts
@@ -57,14 +57,14 @@ diff --git a/web/app/manifest.ts b/web/app/manifest.ts
 -    id: '/',
 -    name: 'SUB/WAVE',
 -    short_name: 'SUB/WAVE',
-+    id: '/prism-subwave-player',
-+    name: 'Prism for Subwave',
-+    short_name: 'Prism',
++    id: '/signal-subwave-player',
++    name: 'Signal for Subwave',
++    short_name: 'Signal',
      description:
 -      'Personal internet radio — single live stream, AI DJ between tracks.',
 -    start_url: '/',
-+      'A standalone Prism player for Subwave radio stations.',
-+    start_url: '/?skin=prism',
++      'A standalone Signal player for Subwave radio stations.',
++    start_url: '/?skin=gatefold',
      scope: '/',
      display: 'standalone',
 @@ -39,13 +38,13 @@ export default function manifest(): MetadataRoute.Manifest {
@@ -72,7 +72,7 @@ diff --git a/web/app/manifest.ts b/web/app/manifest.ts
          type: 'image/png',
          form_factor: 'wide',
 -        label: 'SUB/WAVE player — now playing on the broadcast',
-+        label: 'Prism player for Subwave',
++        label: 'Signal player for Subwave',
        },
        {
          src: '/screenshots/narrow',
@@ -80,7 +80,7 @@ diff --git a/web/app/manifest.ts b/web/app/manifest.ts
          type: 'image/png',
          form_factor: 'narrow',
 -        label: 'SUB/WAVE on mobile',
-+        label: 'Prism on mobile',
++        label: 'Signal on mobile',
        },
      ],
    };
@@ -94,7 +94,7 @@ diff --git a/web/app/page.tsx b/web/app/page.tsx
 -  if (mode !== 'player') return base;
 +  const setupRequired =
 +    process.env.NEXT_PUBLIC_SUBWAVE_STATION_SETUP === 'required' ||
-+    process.env.NEXT_PUBLIC_PRISM_STANDALONE === 'true';
++    process.env.NEXT_PUBLIC_SIGNAL_STANDALONE === 'true';
 +  if (mode !== 'player' || setupRequired) return base;
  
    // allowPersonaTagline: issue #272 shipped tagline-personalised previews here,

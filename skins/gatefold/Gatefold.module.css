@@ -1,0 +1,950 @@
+.shell {
+  --gatefold-wash-a: color-mix(in oklab, var(--accent) 18%, transparent);
+  --gatefold-wash-b: color-mix(in oklab, var(--accent-2) 14%, transparent);
+  --gatefold-progress: 0%;
+  background:
+    linear-gradient(color-mix(in oklab, var(--ink) 2%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--ink) 1.6%, transparent) 1px, transparent 1px),
+    var(--bg);
+  background-size: 38px 38px, 38px 38px, auto;
+}
+
+.background {
+  background:
+    radial-gradient(circle at 22% 16%, var(--gatefold-wash-a), transparent 30rem),
+    radial-gradient(circle at 82% 8%, var(--gatefold-wash-b), transparent 28rem),
+    linear-gradient(110deg, color-mix(in oklab, var(--bg) 94%, transparent), color-mix(in oklab, var(--bg) 78%, transparent) 56%, color-mix(in oklab, var(--bg) 90%, transparent));
+}
+
+.stageScrim {
+  background:
+    linear-gradient(90deg, color-mix(in oklab, var(--bg) 34%, transparent), color-mix(in oklab, var(--bg) 84%, transparent) 50%, color-mix(in oklab, var(--bg) 66%, transparent)),
+    radial-gradient(circle at 62% 48%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 32rem);
+}
+
+.glass {
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--surface) 46%, transparent), color-mix(in oklab, var(--bg) 26%, transparent)),
+    linear-gradient(110deg, color-mix(in oklab, var(--accent) 9%, transparent), transparent 62%);
+  border-color: color-mix(in oklab, var(--line) 50%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--accent) 7%, transparent),
+    0 26px 80px color-mix(in oklab, var(--bg) 70%, transparent);
+  backdrop-filter: blur(18px) saturate(135%);
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+}
+
+.quietGlass {
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--surface) 46%, transparent), color-mix(in oklab, var(--bg) 26%, transparent)),
+    linear-gradient(110deg, color-mix(in oklab, var(--accent) 9%, transparent), transparent 62%);
+  border-color: color-mix(in oklab, var(--line) 50%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--accent) 7%, transparent),
+    0 18px 42px color-mix(in oklab, var(--bg) 48%, transparent);
+  backdrop-filter: blur(18px) saturate(135%);
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+}
+
+.quietGlass::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background:
+    linear-gradient(90deg, color-mix(in oklab, var(--bg) 28%, transparent), color-mix(in oklab, var(--bg) 12%, transparent)),
+    radial-gradient(circle at 74% 46%, color-mix(in oklab, var(--accent) 5%, transparent), transparent 15rem);
+  opacity: 0.78;
+}
+
+.sideRail {
+  isolation: isolate;
+}
+
+.stageGrid {
+  --gatefold-ui-scale: 1;
+  --gatefold-cover-size: clamp(16rem, 46vh, 34rem);
+  --gatefold-panel-gap: clamp(0.65rem, 1.45vh, 1rem);
+  --gatefold-footer-height: clamp(7.5rem, 14vh, 9.75rem);
+  min-height: 0;
+}
+
+.coverColumn {
+  min-height: 0;
+}
+
+.coverArt {
+  min-height: 0;
+}
+
+.contentStack {
+  min-height: 0;
+}
+
+.sideRow {
+  position: relative;
+  z-index: 0;
+  padding-right: 0.35rem;
+  padding-left: 0.35rem;
+}
+
+.sideRow::before {
+  position: absolute;
+  inset: 0.18rem -0.1rem;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  background:
+    linear-gradient(90deg, color-mix(in oklab, var(--bg) 26%, transparent), color-mix(in oklab, var(--surface) 18%, transparent)),
+    color-mix(in oklab, var(--ink) 4%, transparent);
+  opacity: 0.62;
+}
+
+.sideTrackTitle {
+  overflow-wrap: anywhere;
+}
+
+.sideTitle {
+  color: var(--ink);
+  text-shadow:
+    0 1px 12px color-mix(in oklab, var(--bg) 86%, transparent),
+    0 0 1px color-mix(in oklab, var(--surface) 80%, transparent);
+}
+
+.historyTitle {
+  color: color-mix(in oklab, var(--ink) 88%, var(--accent-2) 12%);
+  text-shadow:
+    0 1px 12px color-mix(in oklab, var(--bg) 88%, transparent),
+    0 0 1px color-mix(in oklab, var(--surface) 82%, transparent);
+}
+
+.sideMeta {
+  color: color-mix(in oklab, var(--ink) 76%, var(--accent-2) 24%);
+  text-shadow: 0 1px 10px color-mix(in oklab, var(--bg) 88%, transparent);
+}
+
+.sideAccent {
+  overflow-wrap: anywhere;
+  color: color-mix(in oklab, var(--accent) 72%, var(--ink) 28%);
+  text-shadow: 0 1px 10px color-mix(in oklab, var(--bg) 90%, transparent);
+}
+
+.lyricsPanel {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.lyricsNow {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 0.1rem 0.6rem;
+  align-items: center;
+  border-bottom: 1px solid color-mix(in oklab, var(--line) 42%, transparent);
+  padding: 0.7rem 0.85rem;
+  background: color-mix(in oklab, var(--bg) 16%, transparent);
+}
+
+.lyricsNow strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 760;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lyricsNow span {
+  min-width: 0;
+  overflow: hidden;
+  color: color-mix(in oklab, var(--ink) 68%, var(--accent-2) 32%);
+  font-size: 0.68rem;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lyricsNow em {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  align-self: center;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  font-style: normal;
+  font-weight: 850;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.lyricsLines {
+  padding: 0.45rem 0.7rem 1rem;
+}
+
+.lyricLine {
+  border-left: 1px solid color-mix(in oklab, var(--line) 34%, transparent);
+  padding: 0.48rem 0.65rem;
+  color: color-mix(in oklab, var(--ink) 52%, var(--muted) 48%);
+  font-size: 0.86rem;
+  font-weight: 680;
+  line-height: 1.35;
+  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.lyricLineActive {
+  border-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 9%, transparent);
+  color: var(--ink);
+  text-shadow: 0 1px 12px color-mix(in oklab, var(--bg) 88%, transparent);
+}
+
+.lyricLinePlain {
+  border-color: color-mix(in oklab, var(--line) 42%, transparent);
+  color: color-mix(in oklab, var(--ink) 82%, var(--accent-2) 18%);
+}
+
+.lyricsEmpty,
+.lyricsEmptyBlock {
+  padding: 1rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.lyricsEmptyBlock span {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 850;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.signalMeter {
+  margin-top: 0.55rem;
+  padding: 0.35rem 0 0.15rem;
+  opacity: 0.94;
+}
+
+.artistLine {
+  font-size: calc(1.45rem * var(--gatefold-ui-scale));
+  line-height: 1.15;
+}
+
+.albumLine {
+  font-size: calc(0.98rem * var(--gatefold-ui-scale));
+  line-height: 1.2;
+}
+
+.tagRail {
+  gap: calc(0.5rem * var(--gatefold-ui-scale));
+}
+
+.tagRail span {
+  padding: calc(0.25rem * var(--gatefold-ui-scale)) calc(0.5rem * var(--gatefold-ui-scale));
+  font-size: calc(0.68rem * var(--gatefold-ui-scale));
+  line-height: 1;
+}
+
+.boothCardWrap {
+  min-height: calc(4.5rem * var(--gatefold-ui-scale));
+}
+
+.signalFloor {
+  display: none;
+}
+
+.footerWave {
+  display: none;
+}
+
+.transportProgress {
+  margin-top: 0.35rem;
+  padding-top: 0.15rem;
+}
+
+.controlRail {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.9rem;
+  padding-top: 0.15rem;
+}
+
+.controlCluster {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.controlButton {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: calc(2.75rem * var(--gatefold-ui-scale));
+  height: calc(2.75rem * var(--gatefold-ui-scale));
+  min-width: 2.08rem;
+  min-height: 2.08rem;
+  place-items: center;
+  border: 1px solid color-mix(in oklab, var(--line) 44%, transparent);
+  background: color-mix(in oklab, var(--surface) 28%, transparent);
+  color: var(--accent);
+}
+
+.controlButton:hover {
+  border-color: var(--accent);
+}
+
+.primaryControl {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.activeControl {
+  border-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 88%, var(--bg) 12%);
+  color: var(--bg);
+}
+
+.volumeRocker {
+  display: flex;
+  flex: 1 1 11rem;
+  min-width: min(100%, 10rem);
+  max-width: 22rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 0.35rem;
+}
+
+.themeSlot {
+  color: var(--accent);
+}
+
+.themeSlot :global(button) {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: inherit;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.7rem 1rem;
+  padding: 1rem;
+  font-size: 0.82rem;
+}
+
+.infoGrid span {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.infoGrid strong {
+  min-width: 0;
+  color: var(--accent-2);
+  font-weight: 760;
+}
+
+.quietMic {
+  color: color-mix(in oklab, var(--muted) 78%, var(--accent) 22%);
+  font-style: italic;
+}
+
+.lowFooter {
+  background:
+    linear-gradient(90deg, color-mix(in oklab, var(--surface) 20%, transparent), transparent 68%),
+    color-mix(in oklab, var(--bg) 8%, transparent);
+}
+
+.footerTheme {
+  display: inline-grid;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 1px solid color-mix(in oklab, var(--line) 36%, transparent);
+  background: color-mix(in oklab, var(--surface) 20%, transparent);
+  color: var(--accent);
+}
+
+.footerThemeTrigger {
+  width: 100%;
+  height: 100%;
+  color: inherit;
+}
+
+.footerTheme:hover {
+  border-color: var(--accent);
+}
+
+.footerButton {
+  flex-shrink: 0;
+  border: 1px solid color-mix(in oklab, var(--line) 48%, transparent);
+  background: color-mix(in oklab, var(--surface) 28%, transparent);
+  padding: 0.5rem 0.75rem;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.footerButton:hover {
+  border-color: var(--accent);
+}
+
+.boothLine {
+  padding: 0.72rem 0 0.78rem;
+  border-top: 1px solid color-mix(in oklab, var(--line) 34%, transparent);
+  color: var(--accent-2);
+  text-shadow: 0 1px 10px color-mix(in oklab, var(--bg) 78%, transparent);
+}
+
+.boothLine:first-child {
+  border-top: 0;
+}
+
+.micText {
+  max-height: 5.4em;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--accent) 62%, transparent) transparent;
+}
+
+.title {
+  font-size: calc(clamp(2.35rem, 3.9vw, 3.6rem) * var(--gatefold-title-fit, 1));
+  line-height: 1.07;
+  max-height: 2.18em;
+  overflow: hidden;
+  overflow-wrap: normal;
+  text-wrap: pretty;
+  word-break: normal;
+}
+
+.titleFeature {
+  display: inline;
+  color: color-mix(in oklab, var(--ink) 78%, var(--accent) 22%);
+  font-size: 0.66em;
+  font-style: italic;
+  font-weight: 760;
+}
+
+.gatefoldDialog {
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--surface) 54%, transparent), color-mix(in oklab, var(--bg) 34%, transparent)),
+    linear-gradient(110deg, color-mix(in oklab, var(--accent) 9%, transparent), transparent 62%);
+  border-color: color-mix(in oklab, var(--line) 58%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--accent) 10%, transparent),
+    0 24px 80px color-mix(in oklab, var(--bg) 72%, transparent);
+  backdrop-filter: blur(18px) saturate(135%);
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+}
+
+.gatefoldDialog :global(.v3-eyebrow) {
+  color: var(--accent);
+}
+
+.gatefoldDialog :global(.v3-scroll) {
+  scrollbar-color: var(--accent) color-mix(in oklab, var(--surface) 42%, transparent);
+}
+
+.gatefoldDialog :global(button[aria-pressed="true"]) {
+  border-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 12%, transparent);
+}
+
+.gatefoldDialog :global(button:hover) {
+  border-color: var(--accent);
+}
+
+.volumePopover {
+  position: absolute;
+  bottom: calc(100% + 0.55rem);
+  left: 0;
+  z-index: 30;
+  width: min(72vw, 16.5rem);
+  padding: 0.75rem;
+  border: 1px solid color-mix(in oklab, var(--line) 52%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--surface) 58%, transparent), color-mix(in oklab, var(--bg) 42%, transparent));
+  box-shadow: 0 18px 42px color-mix(in oklab, var(--bg) 58%, transparent);
+  transform: translateX(-50%);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+}
+
+.volumePopover::after {
+  position: absolute;
+  bottom: -0.28rem;
+  left: 0.92rem;
+  width: 0.52rem;
+  height: 0.52rem;
+  border-right: 1px solid color-mix(in oklab, var(--line) 52%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--line) 52%, transparent);
+  background: color-mix(in oklab, var(--bg) 48%, var(--surface) 52%);
+  content: "";
+  transform: rotate(45deg);
+}
+
+.volumeHorizontal {
+  width: 100%;
+  min-width: 0;
+  height: 0.5rem;
+  cursor: pointer;
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      90deg,
+      var(--accent) 0%,
+      color-mix(in oklab, var(--ink) 20%, var(--accent) 80%) var(--gatefold-volume, 100%),
+      color-mix(in oklab, var(--surface) 64%, transparent) var(--gatefold-volume, 100%),
+      color-mix(in oklab, var(--surface) 64%, transparent) 100%
+    );
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--line) 36%, transparent),
+    0 0 16px color-mix(in oklab, var(--accent) 22%, transparent);
+  appearance: none;
+}
+
+.volumeHorizontal::-webkit-slider-thumb {
+  width: 1.05rem;
+  height: 1.05rem;
+  border: 2px solid var(--accent-2);
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 18%, transparent);
+  appearance: none;
+}
+
+.volumeHorizontal::-moz-range-thumb {
+  width: 0.88rem;
+  height: 0.88rem;
+  border: 2px solid var(--accent-2);
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 18%, transparent);
+}
+
+.volumeHorizontal:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--accent) 72%, transparent);
+  outline-offset: 4px;
+}
+
+@media (max-width: 1179px) {
+  .title {
+    font-size: calc(clamp(2.2rem, 8vw, 3.45rem) * var(--gatefold-title-fit, 1));
+    line-height: 1.08;
+  }
+}
+
+@media (min-width: 1180px) {
+  .stageGrid {
+    --gatefold-cover-size: clamp(16rem, 49vh, 34rem);
+    --gatefold-footer-height: clamp(13rem, 30vh, 19rem);
+    grid-template-columns: minmax(15rem, var(--gatefold-cover-size)) minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, calc(100% - var(--gatefold-footer-height))) var(--gatefold-footer-height);
+    align-items: start;
+    gap: clamp(0.8rem, 1.9vh, 1.45rem) clamp(1rem, 2.2vw, 1.6rem) !important;
+    padding: clamp(0.9rem, 2vh, 1.5rem) !important;
+    overflow: hidden;
+  }
+
+  .coverColumn {
+    align-self: start;
+    height: min(var(--gatefold-cover-size), 100%);
+    justify-content: start;
+  }
+
+  .coverArt {
+    height: auto;
+    max-height: 100%;
+  }
+
+  .contentStack {
+    align-self: start;
+    gap: var(--gatefold-panel-gap);
+    overflow: visible;
+  }
+
+  .contentStack > div:first-child,
+  .contentStack > div:nth-child(2) {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .title {
+    font-size: calc(clamp(1.75rem, 3.05vw, 3.05rem) * var(--gatefold-title-fit, 1) * var(--gatefold-ui-scale));
+    max-height: 2.02em;
+  }
+
+  .micText {
+    max-height: clamp(2.25em, 6.2vh, 3.55em);
+    font-size: calc(0.875rem * var(--gatefold-ui-scale));
+  }
+
+  .transportProgress {
+    flex-shrink: 0;
+  }
+
+  .signalMeter {
+    margin-top: 0.2rem;
+    margin-bottom: 0;
+  }
+
+  .controlRail {
+    flex-shrink: 0;
+    gap: calc(0.55rem * var(--gatefold-ui-scale));
+    margin-top: clamp(0.35rem, 1.2vh, 1rem);
+  }
+
+  .signalFloor {
+    position: relative;
+    z-index: 1;
+    grid-row: 2;
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-rows: clamp(1.9rem, 4vh, 2.7rem) minmax(0, 1fr);
+    gap: clamp(0.55rem, 1.05vh, 0.85rem);
+    height: var(--gatefold-footer-height);
+    min-height: 0;
+    padding-top: 0;
+    border-top: 0;
+    color: color-mix(in oklab, var(--accent-2) 62%, transparent);
+    overflow: hidden;
+  }
+
+  .footerWave {
+    position: relative;
+    display: block;
+    min-height: 0;
+    pointer-events: none;
+    opacity: 0.22;
+    mask-image: linear-gradient(90deg, transparent 0%, black 15%, black 85%, transparent 100%);
+  }
+
+  .footerWave::after {
+    position: absolute;
+    right: 0;
+    bottom: 0.15rem;
+    left: 0;
+    height: 1px;
+    content: "";
+    background: color-mix(in oklab, var(--accent) 22%, transparent);
+  }
+
+  .footerPanel {
+    display: grid;
+    min-height: 0;
+    grid-template-columns: minmax(13rem, 0.72fr) minmax(24rem, 2.28fr);
+    gap: clamp(0.95rem, 2vw, 1.8rem);
+    align-items: stretch;
+    padding: clamp(0.7rem, 1.25vh, 1rem) clamp(0.8rem, 1.6vw, 1.2rem);
+    border: 1px solid color-mix(in oklab, var(--line) 28%, transparent);
+    background: color-mix(in oklab, var(--bg) 38%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in oklab, var(--ink) 6%, transparent);
+    backdrop-filter: blur(18px);
+    overflow: hidden;
+  }
+
+  .footerMeta,
+  .footerLyrics {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .footerMeta {
+    display: grid;
+    min-height: 0;
+    align-content: center;
+    gap: clamp(0.7rem, 1.4vh, 1rem);
+  }
+
+  .signalFloor p {
+    margin-top: 0.25rem;
+    overflow: hidden;
+    font-size: calc(0.84rem * var(--gatefold-ui-scale));
+    font-weight: 720;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .footerLyrics {
+    display: flex;
+    position: relative;
+    min-height: 0;
+    flex-direction: column;
+    text-align: left;
+  }
+
+  .lyricsHeader {
+    display: flex;
+    min-height: 1.65rem;
+    flex-shrink: 0;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .lyricsTools {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, var(--accent-2) 62%, transparent);
+  }
+
+  .lyricsToolButton {
+    display: inline-flex;
+    height: 1.55rem;
+    align-items: center;
+    gap: 0.32rem;
+    border: 1px solid color-mix(in oklab, var(--line) 42%, transparent);
+    background: color-mix(in oklab, var(--surface) 22%, transparent);
+    padding: 0 0.45rem;
+    color: var(--accent);
+    font: inherit;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+  }
+
+  .lyricsOffset {
+    display: flex;
+    position: absolute;
+    top: 1.8rem;
+    right: 0;
+    z-index: 8;
+    width: min(22rem, 100%);
+    min-height: 2.2rem;
+    align-items: center;
+    gap: 0.45rem;
+    border: 1px solid color-mix(in oklab, var(--line) 46%, transparent);
+    background: color-mix(in oklab, var(--bg) 82%, transparent);
+    padding: 0.42rem;
+    box-shadow:
+      0 16px 34px color-mix(in oklab, var(--bg) 58%, transparent),
+      inset 0 1px 0 color-mix(in oklab, var(--ink) 7%, transparent);
+    backdrop-filter: blur(18px);
+  }
+
+  .lyricsOffset button {
+    height: 1.45rem;
+    flex-shrink: 0;
+    border: 1px solid color-mix(in oklab, var(--line) 38%, transparent);
+    background: color-mix(in oklab, var(--surface) 20%, transparent);
+    padding: 0 0.45rem;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .lyricsOffset input {
+    min-width: 0;
+    flex: 1;
+    accent-color: var(--accent);
+  }
+
+  .lyricsScroller {
+    min-height: 0;
+    flex: 1;
+    overflow-y: auto;
+    padding: clamp(1.8rem, 6vh, 3rem) 0.35rem clamp(1.8rem, 6vh, 3rem) 0;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--accent) 62%, transparent) transparent;
+  }
+
+  .lyricsScroller p,
+  .lyricLine {
+    margin-top: 0;
+    overflow: visible;
+    font-size: 0.95rem;
+    font-weight: 720;
+    line-height: 1.35;
+    text-transform: none;
+    white-space: normal;
+    color: color-mix(in oklab, var(--ink) 78%, var(--accent) 22%);
+  }
+
+  .lyricLine {
+    border-left: 1px solid color-mix(in oklab, var(--line) 34%, transparent);
+    padding: 0.34rem 0.6rem;
+    color: color-mix(in oklab, var(--ink) 52%, transparent);
+    opacity: 0.58;
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, opacity 160ms ease;
+  }
+
+  .lyricLineActive {
+    border-color: var(--accent);
+    background: color-mix(in oklab, var(--accent) 10%, transparent);
+    color: var(--ink);
+    opacity: 1;
+  }
+
+  .lyricLinePlain {
+    color: color-mix(in oklab, var(--ink) 82%, var(--accent) 18%);
+    opacity: 0.82;
+  }
+
+  .footerDetail {
+    display: block;
+    margin-top: 0.16rem;
+    min-width: 0;
+    overflow: hidden;
+    font-size: calc(0.72rem * var(--gatefold-ui-scale));
+    font-weight: 720;
+    letter-spacing: 0.1em;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: color-mix(in oklab, var(--accent-2) 54%, transparent);
+  }
+
+  .sideRail {
+    height: 100%;
+    max-height: 100%;
+    grid-template-rows: minmax(4.9rem, 7.4rem) minmax(0, 1fr) minmax(0, 1fr) !important;
+    overflow: hidden;
+  }
+
+  .sideRail > section {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+}
+
+@media (min-width: 1180px) and (max-height: 820px) {
+  .stageGrid {
+    --gatefold-ui-scale: 0.86;
+    --gatefold-cover-size: clamp(12rem, 36vh, 22rem);
+    --gatefold-panel-gap: 0.62rem;
+    --gatefold-footer-height: clamp(11rem, 29vh, 15rem);
+    grid-template-rows: minmax(0, calc(100% - var(--gatefold-footer-height))) var(--gatefold-footer-height);
+  }
+
+  .title {
+    font-size: calc(clamp(1.55rem, 2.7vw, 2.6rem) * var(--gatefold-title-fit, 1) * var(--gatefold-ui-scale));
+    max-height: 1.9em;
+  }
+
+  .micText {
+    max-height: 2.45em;
+  }
+
+  .tagRail {
+    margin-top: 0.85rem;
+  }
+
+  .signalFloor {
+    grid-template-rows: clamp(1.4rem, 3.3vh, 2rem) minmax(0, 1fr);
+  }
+
+  .footerPanel {
+    padding: 0.75rem 0.9rem;
+  }
+
+  .signalFloor p {
+    margin-top: 0.16rem;
+    font-size: 0.66rem;
+  }
+}
+
+@media (min-width: 1180px) and (max-height: 720px) {
+  .stageGrid {
+    --gatefold-ui-scale: 0.74;
+    --gatefold-cover-size: clamp(9.5rem, 30vh, 16rem);
+    --gatefold-panel-gap: 0.48rem;
+    --gatefold-footer-height: clamp(9rem, 28vh, 11.5rem);
+    grid-template-rows: minmax(0, calc(100% - var(--gatefold-footer-height))) var(--gatefold-footer-height);
+  }
+
+  .contentStack {
+    gap: var(--gatefold-panel-gap);
+  }
+
+  .title {
+    font-size: calc(clamp(1.35rem, 2.35vw, 2.18rem) * var(--gatefold-title-fit, 1) * var(--gatefold-ui-scale));
+    max-height: 1.8em;
+  }
+
+  .micText {
+    max-height: 2.1em;
+  }
+
+  .controlRail {
+    margin-top: 0.15rem;
+  }
+
+  .signalFloor {
+    display: grid;
+    grid-template-rows: clamp(0.9rem, 2.6vh, 1.5rem) minmax(0, 1fr);
+  }
+
+  .footerPanel {
+    grid-template-columns: minmax(8rem, 0.78fr) minmax(13rem, 2.22fr);
+    gap: 0.45rem;
+    padding: 0.5rem 0.65rem;
+  }
+
+  .signalFloor p,
+  .footerDetail {
+    margin-top: 0.1rem;
+    font-size: 0.68rem;
+    line-height: 1.12;
+  }
+
+  .sideRail {
+    gap: 0.45rem;
+    grid-template-rows: minmax(3.9rem, 6.4rem) minmax(0, 1fr) minmax(0, 1fr) !important;
+  }
+
+  .sideRow {
+    padding-top: 0.22rem;
+    padding-bottom: 0.22rem;
+  }
+
+  .sideTrackTitle {
+    font-size: 0.68rem;
+    line-height: 1.12;
+  }
+
+  .sideMeta {
+    font-size: 0.58rem;
+  }
+
+  .sideAccent {
+    font-size: 0.54rem;
+  }
+}
+
+.progress {
+  width: var(--gatefold-progress);
+}

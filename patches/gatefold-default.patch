@@ -7,7 +7,7 @@ diff --git a/web/lib/skin.ts b/web/lib/skin.ts
  // next/dynamic wrappers into a server component. The registry re-exports
  // DEFAULT_SKIN_ID for component-side consumers.
 -export const DEFAULT_SKIN_ID = 'classic';
-+export const DEFAULT_SKIN_ID = 'prism';
++export const DEFAULT_SKIN_ID = 'gatefold';
  
  /** Renamed/retired skin ids — resolved to their successor so an operator's
   *  saved setting keeps working across upgrades. */

@@ -4,16 +4,16 @@
 # Put this under services, near the existing subwave service.
 
 services:
-  subwave-prism-player:
-    image: ghcr.io/kylejschultz/subwave-prism-player:latest
-    container_name: subwave-prism-player
+  signal-subwave-player:
+    image: ghcr.io/kylejschultz/signal-subwave-player:latest
+    container_name: signal-subwave-player
     networks: [docker-network]
     environment:
       - NODE_ENV=production
       - PORT=7700
       - HOSTNAME=0.0.0.0
       - SUBWAVE_HOMEPAGE=player
-      - SITE_URL=https://prism.gurthyy.xyz
+      - SITE_URL=https://signal.gurthyy.xyz
       - CONTROLLER_INTERNAL_URL=http://subwave/api
     ports:
       - "7703:7700"
