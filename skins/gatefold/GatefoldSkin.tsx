@@ -5,7 +5,7 @@
 
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { Heart, Info, LoaderCircle, Play, RadioTower, Send, Square, Volume2, VolumeX, X } from 'lucide-react';
+import { Heart, Info, LoaderCircle, Play, RadioTower, Send, SlidersHorizontal, Square, Volume2, VolumeX, X } from 'lucide-react';
 import styles from './Gatefold.module.css';
 import {
   usePlayerActions,
@@ -131,120 +131,32 @@ function QueueRow({ entry, muted = false }: { entry: QueueEntry; muted?: boolean
   );
 }
 
-function activeLyricIndex(payload: PublicLyricsPayload | null, elapsedMs: number): number {
+const LYRICS_OFFSET_KEY_PREFIX = 'subwave:lyrics-offset-ms:';
+
+function clampLyricOffset(value: number): number {
+  return Number.isFinite(value) ? Math.min(5000, Math.max(-5000, Math.round(value))) : 0;
+}
+
+function formatLyricOffset(value: number): string {
+  if (value === 0) return '0.00s';
+  return `${value > 0 ? '+' : '-'}${(Math.abs(value) / 1000).toFixed(2)}s`;
+}
+
+function lyricStorageKey(trackKey: string | null): string | null {
+  return trackKey ? `${LYRICS_OFFSET_KEY_PREFIX}${trackKey}` : null;
+}
+
+function activeLyricIndex(payload: PublicLyricsPayload | null, elapsedMs: number, offsetMs = 0): number {
   if (!payload?.synced) return -1;
+  const target = Math.max(0, elapsedMs + offsetMs);
   let active = -1;
   for (let i = 0; i < payload.lines.length; i += 1) {
     const startMs = payload.lines[i]?.startMs;
     if (startMs == null) continue;
-    if (startMs > elapsedMs) break;
+    if (startMs > target) break;
     active = i;
   }
   return active;
-}
-
-function GatefoldLyricsPanel({
-  songId,
-  title,
-  artist,
-  trackStartedAt,
-}: {
-  songId?: string | null;
-  title?: string;
-  artist?: string;
-  trackStartedAt: number | null;
-}) {
-  const client = useStationClient();
-  const [payload, setPayload] = useState<PublicLyricsPayload | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const [now, setNow] = useState(() => Date.now());
-  const activeRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    setPayload(null);
-    setFailed(false);
-    if (!songId) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    client
-      .currentLyrics()
-      .then(data => {
-        if (cancelled) return;
-        setPayload(data?.songId === songId ? data : null);
-        setFailed(data == null);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [client, songId]);
-
-  useEffect(() => {
-    if (!payload?.synced) return;
-    const id = window.setInterval(() => setNow(Date.now()), 500);
-    return () => window.clearInterval(id);
-  }, [payload?.synced]);
-
-  const elapsedMs = trackStartedAt == null ? 0 : Math.max(0, now - trackStartedAt);
-  const activeIndex = useMemo(() => activeLyricIndex(payload, elapsedMs), [payload, elapsedMs]);
-
-  useEffect(() => {
-    if (activeIndex < 0) return;
-    activeRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  }, [activeIndex]);
-
-  if (!songId) {
-    return <p className={styles.lyricsEmpty}>Lyrics appear for library tracks once they are indexed.</p>;
-  }
-
-  if (loading) {
-    return <p className={styles.lyricsEmpty}>Pulling lyrics from the library...</p>;
-  }
-
-  if (failed) {
-    return <p className={styles.lyricsEmpty}>Lyrics are not reachable right now.</p>;
-  }
-
-  if (!payload?.lines.length) {
-    return (
-      <div className={styles.lyricsEmptyBlock}>
-        <span>No lyrics indexed</span>
-        <p>{title ? `${title}${artist ? ` by ${artist}` : ''}` : 'This track'} has no lyrics in the station library yet.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className={styles.lyricsPanel}>
-      <div className={styles.lyricsNow}>
-        <strong>{title || 'Now playing'}</strong>
-        {artist && <span>{artist}</span>}
-        <em>{payload.synced ? 'Synced' : 'Plain'}</em>
-      </div>
-      <ScrollArea className="min-h-0 flex-1">
-        <div className={styles.lyricsLines}>
-          {payload.lines.map((line, index) => {
-            const active = index === activeIndex;
-            return (
-              <div
-                key={`${line.startMs ?? 'plain'}-${index}`}
-                ref={active ? activeRef : undefined}
-                className={cn(styles.lyricLine, active && styles.lyricLineActive, !payload.synced && styles.lyricLinePlain)}
-              >
-                {line.text}
-              </div>
-            );
-          })}
-        </div>
-      </ScrollArea>
-    </div>
-  );
 }
 
 const WAVE_BARS = 34;
@@ -456,6 +368,14 @@ export default function GatefoldSkin(_props: SkinProps) {
   const [playerUrl, setPlayerUrl] = useState('');
   const titleRef = useRef<HTMLHeadingElement | null>(null);
   const [titleFit, setTitleFit] = useState(1);
+  const [lyricsPayload, setLyricsPayload] = useState<PublicLyricsPayload | null>(null);
+  const [lyricsLoading, setLyricsLoading] = useState(false);
+  const [lyricsFailed, setLyricsFailed] = useState(false);
+  const [lyricsNow, setLyricsNow] = useState(() => Date.now());
+  const [lyricsOffsetMs, setLyricsOffsetMs] = useState(0);
+  const [lyricsOffsetOpen, setLyricsOffsetOpen] = useState(false);
+  const activeLyricRef = useRef<HTMLDivElement | null>(null);
+  const lyricsScrollerRef = useRef<HTMLDivElement | null>(null);
   const like = useTrackLike();
   const adjustVolume = useVolumeNudge();
   const volumePercent = Math.round(volume * 100);
@@ -489,6 +409,83 @@ export default function GatefoldSkin(_props: SkinProps) {
     const id = window.setInterval(() => setBoothClock(Date.now()), 30_000);
     return () => window.clearInterval(id);
   }, []);
+
+  const lyricsTrackKey = useMemo(() => {
+    if (lyricsPayload?.songId) return lyricsPayload.songId;
+    if (coverId) return coverId;
+    if (nowPlaying?.title || nowPlaying?.artist) {
+      return [nowPlaying?.title, nowPlaying?.artist, nowPlaying?.album].filter(Boolean).join('::');
+    }
+    return null;
+  }, [coverId, lyricsPayload?.songId, nowPlaying?.album, nowPlaying?.artist, nowPlaying?.title]);
+
+  const setLyricOffset = (next: number) => {
+    const clamped = clampLyricOffset(next);
+    setLyricsOffsetMs(clamped);
+    try {
+      const key = lyricStorageKey(lyricsTrackKey);
+      if (key) window.localStorage.setItem(key, String(clamped));
+    } catch {}
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    setLyricsPayload(null);
+    setLyricsFailed(false);
+    if (!coverId || offline || !tunedIn) {
+      setLyricsLoading(false);
+      return;
+    }
+    setLyricsLoading(true);
+    client
+      .currentLyrics()
+      .then(data => {
+        if (cancelled) return;
+        setLyricsPayload(data?.songId === coverId ? data : null);
+        setLyricsFailed(data == null);
+      })
+      .finally(() => {
+        if (!cancelled) setLyricsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [client, coverId, offline, tunedIn]);
+
+  useEffect(() => {
+    setLyricsNow(Date.now());
+    setLyricsOffsetOpen(false);
+    lyricsScrollerRef.current?.scrollTo({ top: 0 });
+    const key = lyricStorageKey(lyricsTrackKey);
+    try {
+      const stored = key ? window.localStorage.getItem(key) : null;
+      setLyricsOffsetMs(clampLyricOffset(stored != null ? Number(stored) : lyricsPayload?.offsetMs ?? 0));
+    } catch {
+      setLyricsOffsetMs(clampLyricOffset(lyricsPayload?.offsetMs ?? 0));
+    }
+  }, [lyricsPayload?.offsetMs, lyricsTrackKey, trackStartedAt]);
+
+  useEffect(() => {
+    if (!lyricsPayload?.synced) return;
+    const id = window.setInterval(() => setLyricsNow(Date.now()), 500);
+    return () => window.clearInterval(id);
+  }, [lyricsPayload?.synced, lyricsTrackKey, trackStartedAt]);
+
+  const lyricElapsedMs = trackStartedAt == null ? 0 : Math.max(0, lyricsNow - trackStartedAt);
+  const activeLyric = useMemo(
+    () => activeLyricIndex(lyricsPayload, lyricElapsedMs, lyricsOffsetMs),
+    [lyricsPayload, lyricElapsedMs, lyricsOffsetMs],
+  );
+  const showLyricsPanel = tunedIn && !offline && Boolean(coverId);
+
+  useEffect(() => {
+    if (activeLyric < 0) return;
+    const scroller = lyricsScrollerRef.current;
+    const activeLine = activeLyricRef.current;
+    if (!scroller || !activeLine) return;
+    const top = activeLine.offsetTop - (scroller.clientHeight / 2) + (activeLine.clientHeight / 2);
+    scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  }, [activeLyric]);
 
   useEffect(() => {
     let cancelled = false;
@@ -782,29 +779,93 @@ export default function GatefoldSkin(_props: SkinProps) {
                 </div>
                 <div className={styles.footerPanel}>
                   <div className={styles.footerMeta}>
-                    <Label>Station</Label>
-                    <p>{weatherLine || stationName}</p>
-                    <span className={styles.footerDetail}>
-                      {weatherSummary || weatherLocation || statusLine}
-                    </span>
+                    <div>
+                      <Label>Station</Label>
+                      <p>{weatherLine || stationName}</p>
+                      <span className={styles.footerDetail}>
+                        {weatherSummary || weatherLocation || statusLine}
+                      </span>
+                    </div>
+                    <div>
+                      <Label>Program</Label>
+                      <p>{showLine}</p>
+                      <span className={styles.footerDetail}>
+                        {showTiming?.until || stationTime}
+                      </span>
+                    </div>
                   </div>
                   <div className={styles.footerLyrics}>
-                    <Label>Lyrics</Label>
-                    <p>{voice?.text || nowPlaying?.title || 'Lyrics will land here'}</p>
-                  </div>
-                  <div className={styles.footerMeta}>
-                    <Label>Program</Label>
-                    <p>{showLine}</p>
-                    <span className={styles.footerDetail}>
-                      {showTiming?.until || stationTime}
-                    </span>
+                    <div className={styles.lyricsHeader}>
+                      <Label>Lyrics</Label>
+                      <div className={styles.lyricsTools}>
+                        {showLyricsPanel && lyricsPayload?.synced && (
+                          <button
+                            type="button"
+                            onClick={() => setLyricsOffsetOpen(value => !value)}
+                            className={cn(styles.lyricsToolButton, lyricsOffsetOpen && styles.activeControl)}
+                            aria-pressed={lyricsOffsetOpen}
+                            aria-label="Configure lyric timing offset"
+                            title="Configure lyric timing offset"
+                          >
+                            <SlidersHorizontal aria-hidden className="size-3.5" />
+                            <span>{formatLyricOffset(lyricsOffsetMs)}</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {showLyricsPanel && lyricsPayload?.synced && lyricsOffsetOpen && (
+                      <div className={styles.lyricsOffset}>
+                        <button type="button" onClick={() => setLyricOffset(lyricsOffsetMs - 100)} aria-label="Delay lyrics">-</button>
+                        <input
+                          type="range"
+                          min={-5000}
+                          max={5000}
+                          step={50}
+                          value={lyricsOffsetMs}
+                          onChange={event => setLyricOffset(Number(event.target.value))}
+                          aria-label="Lyric offset"
+                        />
+                        <button type="button" onClick={() => setLyricOffset(lyricsOffsetMs + 100)} aria-label="Advance lyrics">+</button>
+                        <button type="button" onClick={() => setLyricOffset(0)}>Zero</button>
+                      </div>
+                    )}
+
+                    <div ref={lyricsScrollerRef} className={styles.lyricsScroller}>
+                      {!showLyricsPanel ? (
+                        <p>Tune in to show synced lyrics for the current track.</p>
+                      ) : lyricsLoading ? (
+                        <p>Pulling lyrics from the library...</p>
+                      ) : lyricsFailed ? (
+                        <p>Lyrics are not reachable right now.</p>
+                      ) : !lyricsPayload?.lines.length ? (
+                        <p>{nowPlaying?.title ? `${nowPlaying.title} has no lyrics indexed yet.` : 'No lyrics indexed yet.'}</p>
+                      ) : (
+                        lyricsPayload.lines.map((line, index) => {
+                          const active = index === activeLyric;
+                          return (
+                            <div
+                              key={`${line.startMs ?? 'plain'}-${index}`}
+                              ref={active ? activeLyricRef : undefined}
+                              className={cn(
+                                styles.lyricLine,
+                                active && styles.lyricLineActive,
+                                !lyricsPayload.synced && styles.lyricLinePlain,
+                              )}
+                            >
+                              {line.text}
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </main>
 
-          <aside className={cn('grid min-h-0 min-w-0 gap-3 min-[1180px]:grid-rows-[118px_minmax(0,1fr)_190px]', styles.sideRail)}>
+          <aside className={cn('grid min-h-0 min-w-0 gap-3 min-[1180px]:grid-rows-[118px_minmax(0,1fr)]', styles.sideRail)}>
             <Panel title="Up next" className="h-[118px]">
               <div className="min-h-0 px-3 py-1">
                 {upNext.length > 0 ? (
@@ -813,15 +874,6 @@ export default function GatefoldSkin(_props: SkinProps) {
                   <p className="py-7 text-center text-sm text-muted">Nothing queued yet.</p>
                 )}
               </div>
-            </Panel>
-
-            <Panel title="Lyrics" className="min-h-[300px]">
-              <GatefoldLyricsPanel
-                songId={nowPlaying?.subsonic_id}
-                title={nowPlaying?.title}
-                artist={nowPlaying?.artist}
-                trackStartedAt={trackStartedAt}
-              />
             </Panel>
 
             <Panel title="Booth feed" className="h-[190px]">
