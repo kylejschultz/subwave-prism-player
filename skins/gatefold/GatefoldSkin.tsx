@@ -866,7 +866,7 @@ export default function GatefoldSkin(_props: SkinProps) {
             </div>
           </main>
 
-          <aside className={cn('grid min-h-0 min-w-0 gap-3 min-[1180px]:grid-rows-[118px_minmax(0,1fr)_190px]', styles.sideRail)}>
+          <aside className={cn('grid min-h-0 min-w-0 gap-3', styles.sideRail)}>
             <Panel title="Up next" className="h-[118px]">
               <div className="min-h-0 px-3 py-1">
                 {upNext.length > 0 ? (
@@ -889,7 +889,7 @@ export default function GatefoldSkin(_props: SkinProps) {
               </ScrollArea>
             </Panel>
 
-            <Panel title="Booth feed" className="h-[190px]">
+            <Panel title="Booth feed">
               <ScrollArea className="min-h-0 flex-1">
                 <div className="px-4 py-2">
                   {spokenLines.length > 0 ? (

@@ -557,7 +557,7 @@
 
 @media (min-width: 1180px) {
   .stageGrid {
-    --gatefold-cover-size: clamp(16rem, 48vh, 32rem);
+    --gatefold-cover-size: clamp(16rem, 49vh, 34rem);
     --gatefold-footer-height: clamp(13rem, 30vh, 19rem);
     grid-template-columns: minmax(15rem, var(--gatefold-cover-size)) minmax(0, 1fr) !important;
     grid-template-rows: minmax(0, calc(100% - var(--gatefold-footer-height))) var(--gatefold-footer-height);
@@ -690,6 +690,7 @@
 
   .footerLyrics {
     display: flex;
+    position: relative;
     min-height: 0;
     flex-direction: column;
     text-align: left;
@@ -733,12 +734,21 @@
 
   .lyricsOffset {
     display: flex;
-    min-height: 1.75rem;
-    flex-shrink: 0;
+    position: absolute;
+    top: 1.8rem;
+    right: 0;
+    z-index: 8;
+    width: min(22rem, 100%);
+    min-height: 2.2rem;
     align-items: center;
     gap: 0.45rem;
-    border-top: 1px solid color-mix(in oklab, var(--line) 20%, transparent);
-    padding-top: 0.35rem;
+    border: 1px solid color-mix(in oklab, var(--line) 46%, transparent);
+    background: color-mix(in oklab, var(--bg) 82%, transparent);
+    padding: 0.42rem;
+    box-shadow:
+      0 16px 34px color-mix(in oklab, var(--bg) 58%, transparent),
+      inset 0 1px 0 color-mix(in oklab, var(--ink) 7%, transparent);
+    backdrop-filter: blur(18px);
   }
 
   .lyricsOffset button {
@@ -821,7 +831,7 @@
   .sideRail {
     height: 100%;
     max-height: 100%;
-    grid-template-rows: minmax(4.9rem, auto) minmax(0, 1fr) minmax(5.4rem, 0.72fr) !important;
+    grid-template-rows: minmax(4.9rem, 7.4rem) minmax(0, 1fr) minmax(0, 1fr) !important;
     overflow: hidden;
   }
 
@@ -913,7 +923,7 @@
 
   .sideRail {
     gap: 0.45rem;
-    grid-template-rows: minmax(3.9rem, auto) minmax(0, 1fr) minmax(4.2rem, 0.65fr) !important;
+    grid-template-rows: minmax(3.9rem, 6.4rem) minmax(0, 1fr) minmax(0, 1fr) !important;
   }
 
   .sideRow {
